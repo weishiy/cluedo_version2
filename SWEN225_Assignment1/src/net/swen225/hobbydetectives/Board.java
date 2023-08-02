@@ -1,114 +1,154 @@
 package net.swen225.hobbydetectives;
 
+
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+
+import java.util.HashSet;
+import java.util.Set;
+
+
 public class Board {
 
-    private final Tile[][] board = new Tile[25][25];
 
-    /***
-     * Creates a new board for the game to operate on.
-     * @param players Variable - Player - Accepts a variable number of players to the board
-     */
-    public Board(Player... players){
-        setBoard();
-        for(Player p:players)
-            setPlayer(p, p.x(), p.y());
+
+  /**
+   * Associates each location with the correct estate card.
+   */
+  public static final Map<Locations, EstateCard> locationsToEstateCard =
+      Map.of(Locations.VISITATION_VILLA, EstateCard.VISITATION_VILLA, Locations.HAUNTED_HOUSE,
+          EstateCard.HAUNTED_HOUSE, Locations.MANIC_MANOR, EstateCard.MANIC_MANOR,
+          Locations.CALAMITY_CASTLE, EstateCard.CALAMITY_CASTLE, Locations.PERIL_PALACE,
+          EstateCard.PERIL_PALACE);
+
+  /***
+   * Returns a Tile object from the specified coordinates of the board
+   * 
+   * @param x Integer - Represents X axis
+   * @param y Integer - Represents Y axis
+   * @return Tile - Tile found at X and Y coordinates
+   */
+  public Tile inspectTile(int x, int y) {
+    return board[x][y];
+  }
+
+  /***
+   * Returns the tile of a given directional input based off of a given tile
+   * 
+   * @param from Tile - Tile to measure direction from
+   * @param d Direction - direction to get the next tile from
+   * @return Tile - Tile object given by the direction
+   */
+  public Tile getDirectionTile(Tile from, Direction d) {
+    switch (d) {
+      case NORTH -> {
+        return inspectTile(from.x(), from.y() + 1);
+      }
+      case SOUTH -> {
+        return inspectTile(from.x(), from.y() - 1);
+      }
+      case EAST -> {
+        return inspectTile(from.x() + 1, from.y());
+      }
+      case WEST -> {
+        return inspectTile(from.x() - 1, from.y());
+      }
+      default -> throw new IllegalArgumentException();
+    }
+  }
+
+  public static final int SIZE = 24;
+
+  private final Set<Room> rooms = new HashSet<>();
+  private final Tile[][] board = new Tile[SIZE][SIZE];
+
+  /***
+   * Creates a new board for the game to operate on.
+   *
+   */
+  public Board() {
+    // the basics on setting up a room and a door
+    // HAUNTED_HOUSE
+    var hauntedHouse = new Room(2, 2, 6, 6, Locations.HAUNTED_HOUSE);
+    hauntedHouse.addDoor(3, 6);
+    hauntedHouse.addDoor(6, 5);
+    rooms.add(hauntedHouse);
+
+    // MANIC_MANOR
+    var manicManor = new Room(2, 17, 6, 21, Locations.MANIC_MANOR);
+    hauntedHouse.addDoor(5, 17);
+    hauntedHouse.addDoor(6, 20);
+    rooms.add(manicManor);
+
+    // VISITATION_VILLA
+    var visitationVilla = new Room(10, 9, 13, 14, Locations.VISITATION_VILLA);
+    visitationVilla.addDoor(10, 12);
+    visitationVilla.addDoor(12, 9);
+    visitationVilla.addDoor(13, 11);
+    visitationVilla.addDoor(11, 14);
+    rooms.add(visitationVilla);
+
+    // CALAMITY_CASTLE
+    var calamityCastle = new Room(17, 2, 21, 6, Locations.CALAMITY_CASTLE);
+    calamityCastle.addDoor(17, 3);
+    calamityCastle.addDoor(18, 6);
+    rooms.add(calamityCastle);
+
+    // PERIL_PALACE
+    var perilPlace = new Room(17, 17, 21, 21, Locations.PERIL_PALACE);
+    perilPlace.addDoor(17, 18);
+    perilPlace.addDoor(20, 17);
+    rooms.add(perilPlace);
+
+    // four grey areas
+    rooms.add(new Room(11, 5, 12, 6, Locations.GREY_AREA));
+    rooms.add(new Room(5, 11, 6, 12, Locations.GREY_AREA));
+    rooms.add(new Room(11, 17, 12, 18, Locations.GREY_AREA));
+    rooms.add(new Room(17, 11, 18, 12, Locations.GREY_AREA));
+
+    updateTiles();
+  }
+
+  /***
+   * Creates the full board representation and plots spaces between rooms
+   */
+  public void updateTiles() {
+    for (int x = 0; x < SIZE; x++) {
+      for (int y = 0; y < SIZE; y++) {
+        board[x][y] = new Tile(x, y, TileType.HALLWAY, Locations.BOARD);
+      }
     }
 
-    /***
-     * Creates the full board representation and plots spaces between rooms
-     */
-    private void setBoard(){
-        //the basics on setting up a room and a door
-        addRoom(3, 3, 6, 6, Locations.TEST_ROOM);
-        setDoor(3, 4, Locations.TEST_ROOM);
-        for(int x = 0; x < 25; x++)
-            for(int y = 0; y < 25; y++)
-                if(board[x][y] == null)
-                    board[x][y] = new Tile(x, y, "_", Locations.BOARD);
-    }
-
-    /***
-     * Creates a room on the board
-     * @param x1 Integer - Represents top left X coordinate
-     * @param y1 Integer - Represents top left Y coordinate
-     * @param x2 Integer - Represents bottom right X coordinate
-     * @param y2 Integer - Represents bottom right Y coordinate
-     * @param room Locations - Location enum representation
-     */
-    private void addRoom(int x1, int y1, int x2, int y2, Locations room){
-        for (int x = x1; x < x2; x++) {
-            board[x][y1] = new Tile(x, y1, "#", room);
-            board[x][y2] = new Tile(x, y2, "#", room);
+    rooms.forEach(r -> {
+      // floor and walls
+      for (int x = r.getX1(); x <= r.getX2(); x++) {
+        for (int y = r.getY1(); y <= r.getY2(); y++) {
+          if (x == r.getX1() || x == r.getX2() || y == r.getY1() || y == r.getY2()) {
+            board[x][y] = new Tile(x, y, TileType.WALL, r.getLocations());
+          } else {
+            // not ideal, but a room can be a room (literally) or a grey area. doesn't want to
+            // create
+            // another class for grey area
+            if (r.getLocations() == Locations.GREY_AREA) {
+              board[x][y] = new Tile(x, y, TileType.GREY_AREA, r.getLocations());
+            } else {
+              board[x][y] = new Tile(x, y, TileType.ROOM, r.getLocations());
+            }
+          }
         }
-        for (int y = y1; y < y2; y++) {
-            board[x1][y] = new Tile(x1, y, "#", room);
-            board[x2][y] = new Tile(x2, y, "#", room);
-        }
-    }
+      }
 
-    /***
-     * Creates a new door Tile at specified coordinates
-     * @param x Integer - Represents X axis
-     * @param y Integer - Represents Y axis
-     * @param room Location - Represents connected room
-     */
-    private void setDoor(int x, int y, Locations room){
-        board[x][y] = new Tile(x, y, "@", room);
-    }
+      // doors (overwriting walls)
+      r.getDoors().forEach(v -> board[v.getKey()][v.getValue()] =
+          new Tile(v.getKey(), v.getValue(), TileType.DOOR, r.getLocations()));
+    });
+  }
 
-    /***
-     * Returns a Tile object from the specified coordinates of the board
-     * @param x Integer - Represents X axis
-     * @param y Integer - Represents Y axis
-     * @return Tile - Tile found at X and Y coordinates
-     */
-    private Tile inspectTile(int x, int y){
-        return board[x][y];
-    }
 
-    private void setPlayer(Player player, int x, int y){
-        board[x][y] = new Tile(x, y, "*", player.getCurrentRoom());
-    }
 
-    /***
-     * Returns a string representation of the current game board
-     * @return String - The board
-     */
-    public String toString(){
-        //I could remake this using streams, but that can be done later.
-        String Sboard = "";
-        for(int x = 0; x < 25; x++){
-            for(int y = 0; y < 25; y++){
-                Sboard = Sboard.concat(board[x][y].value());
-            }
-            Sboard = Sboard.concat("\n");
-        }
-        return Sboard;
-    }
-
-    /***
-     * Returns the tile of a given directional input based off of a given tile
-     * @param from Tile - Tile to measure direction from
-     * @param d Direction - direction to get the next tile from
-     * @return Tile - Tile object given by the direction
-     */
-    public Tile getDirectionTile(Tile from, Direction d){
-        switch(d){
-            case NORTH -> {
-                return inspectTile(from.x(), from.y() + 1);
-            }
-            case SOUTH -> {
-                return inspectTile(from.x(), from.y() - 1);
-            }
-            case EAST -> {
-                return inspectTile(from.x() + 1, from.y());
-            }
-            case WEST -> {
-                return inspectTile(from.x() - 1, from.y());
-            }
-            default ->
-                throw new IllegalArgumentException();
-        }
-    }
-
+  public Set<Room> getRooms() {
+    return rooms;
+  }
 }
