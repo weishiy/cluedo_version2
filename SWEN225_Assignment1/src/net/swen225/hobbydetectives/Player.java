@@ -1,6 +1,6 @@
 package net.swen225.hobbydetectives;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,20 +9,23 @@ import java.util.stream.Collectors;
 
 public class Player {
 
+  /** Starting location of the player. */
+  private final int x, y, turnID;
+
   /** Player name */
   private final String name;
   private final Color color;
 
   /**
    * Player's current location on the board.
-   *
+   * <p></p>
    * Should be <code>null</code> whenever they are inside a room.
    */
   private Tile currentTileLocation;
 
   /**
    * Where they are on the board.
-   *
+   * <p></p>
    * When outside, it should be <code>BOARD</code>, otherwise, it should be the location of an
    * estate.
    */
@@ -36,23 +39,44 @@ public class Player {
   private boolean active = true;
 
 
-    /***
-     * Creates a new Player object
-     * @param name String - name of the player
-     * @param color Color - colour representation of the player
-     * @param location Tile - player's starting location
-     * @param cards Variable - RefuCard - A variable amount of refutation cards that the player may have
-     */
-    public Player(String name, Color color, Tile location, Card... cards){
-        this.name = name;
-        this.color = color;
-        this.currentTileLocation = location;
-        Collections.addAll(currentCards, cards);
-    }
+  /***
+   * Creates a new Player object
+   * 
+   * @param name String - name of the player
+   * @param color Color - colour representation of the player
+   * @param x Int - X coordinate of the player's starting location
+   * @param y Int - Y coordinate of the player's starting location
+   * @param turnID Int - used for the sorting of players in the specified turn order
+   * @param cards Variable - Card - A variable amount of refutation cards that the player may
+   *        have
+   */
+  public Player(String name, Color color, int x, int y, int turnID, Card... cards) {
+    this.name = name;
+    this.color = color;
+    this.x = x;
+    this.y = y;
+    this.turnID = turnID;
+    Collections.addAll(currentCards, cards);
+  }
 
-    public String getName() {
-        return name;
-    }
+  // Note: should we just make the private final fields x and y public, since they are already
+  // final?
+
+  //Agreed, I shall make them final. -Joseph
+  public int x() {
+    return x;
+  }
+
+  public int y() {
+    return y;
+  }
+
+  public int turnID(){ return turnID; }
+
+  // Ditto as above.
+  public String getName() {
+    return name;
+  }
 
   public Color getColor() {
     return color;
@@ -77,7 +101,7 @@ public class Player {
 
   /**
    * Returns the player's hand
-   *
+   * 
    * @return the hand of the player.
    */
   public Set<Card> hand() {
@@ -86,10 +110,11 @@ public class Player {
 
   /***
    * Checks if the player's refutation card contains a given query
-   *
+   * 
    * @param query String - query to search by
    * @return True if the player does, else false.
    */
+  @Deprecated(since = "03/08/23")
   public boolean queryCards(String query) { // Using Strings seem problematic
     for (Card card : currentCards)
       if (card.value().equals(query))
@@ -100,7 +125,7 @@ public class Player {
 
   /***
    * Moves the player into the given tile or room depending on the data of the tile
-   *
+   * 
    * @param newTileLoc Tile - New tile to be moved into
    */
   public void move(Tile newTileLoc) {
@@ -115,7 +140,7 @@ public class Player {
 
   /**
    * Moves the player into the given room directly
-   *
+   * 
    * @param location the new room to move the player in
    */
   public void teleport(Locations location) {

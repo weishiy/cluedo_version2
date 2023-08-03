@@ -1,12 +1,15 @@
 package net.swen225.hobbydetectives;
 
+import java.util.Scanner;
 import java.util.Set;
 
 public class Prompt {
   private Game game;
+  private Scanner scan;
 
   public Prompt(Game game) {
     this.game = game;
+    scan = new Scanner(System.in);
   }
 
   /**
@@ -24,18 +27,31 @@ public class Prompt {
    * Poses <code>question</code>, and the possible responses to the screen. Waits for the player to
    * type in one of the responses given, repeating the prompt as necessary.
    * 
-   * @param question
-   * @param acceptable
-   * @return
+   * @param question String - Question to pose to the player
+   * @param acceptableResponses Set<String> - List of all possible responses that will be accepted for this question
+   * @return VALID::[response] when accepted, or ERROR::Incorrect Response when failed.
    */
   public String prompt(String question, Set<String> acceptableResponses) {
-    // TODO: Stub
-    return null;
+    System.out.println(question + "/n");
+    String userInput = scan.nextLine();
+    /*this is a very hacky way of doing error codes and responses, if this were elixir
+    * I would be having a much better time.
+    * Alas, I am not.
+    * Change it how you wish!
+    * -Joseph
+    */
+    for(String possibleResponse:acceptableResponses){
+      if(possibleResponse.equalsIgnoreCase(userInput))
+        return "VALID::" + possibleResponse;
+      //why possibleResponse over user input? because of the equalsIgnoreCase! Makes it easier if we
+      //just stick to casing used in the set, rather than adapting it to everything
+    }
+    return "ERROR::Incorrect Response";
   }
 
   /**
    * Prompts the current player to select a card.
-   * 
+   * <p></p>
    * Prints this question to the screen, and acceptable cards, and waits for the player to select a
    * card by name. If the player doesn't enter a valid response, loops.
    * 
