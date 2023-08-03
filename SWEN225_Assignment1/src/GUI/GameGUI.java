@@ -4,28 +4,25 @@ import net.swen225.hobbydetectives.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
  * GUI class for displaying the game board of Hobby Detectives.
+ *
+ * This class is deprecated as the game interface must be text-based.
  */
+@Deprecated
 public class GameGUI extends JFrame {
     private Game game; // board object
-    private Map<Tile, Color> characterColors = new HashMap<>();
-
-    private int cellSize = 16;
-    private int xOffset = 50;
-    private int yOffset = 50;
 
     // Functional buttons
-    private JButton rollButton;
+    private JPanel controlPanel;
     private JButton upButton;
     private JButton downButton;
-    private JButton rightButton;
     private JButton leftButton;
-
+    private JButton rightButton;
+    private JButton accuseButton;
+    private JButton endTurnButton;
 
     /**
      * Constructor for the BoardGUI class.
@@ -35,108 +32,130 @@ public class GameGUI extends JFrame {
 
     public GameGUI(Game game) {
         this.game = game;
+
         setTitle("Hobby Detectives Game");
-        setSize(500 + xOffset, 500 + yOffset);
+        setSize(800, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-    }
+        setLayout(null);
 
-//    private void addButtons() {
-//        // Create and set up the functional buttons
-//        rollButton = new JButton("Roll Dice");
-//        upButton = new JButton("Up");
-//
-//        // Add action listeners to the buttons
-//        rollButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                // Your code to handle the "Roll Dice" button click
-//            }
-//        });
-//
-//        upButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                // Your code to handle the "Move Player" button click
-//            }
-//        });
-//
-//        // Create a panel to hold the buttons
-//        JPanel buttonPanel = new JPanel(null);
-//        // Set the bounds (position and size) for each button
-//        rollButton.setBounds(100, 200, 100, 30); // x, y, width, height
-//        upButton.setBounds(120, 200, 100, 30); // x, y, width, height
-//
-//        buttonPanel.add(rollButton);
-//        buttonPanel.add(upButton);
-//
-//        // Add the button panel to the frame
-//        add(buttonPanel, BorderLayout.SOUTH);
-//    }
+        var gamePanel = new GamePanel(game);
+        gamePanel.setBounds(10, 10, 400, 400);
+        add(gamePanel);
 
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+        controlPanel = new JPanel();
+        controlPanel.setBounds(0, 420, 450, 100);
 
-        var board = game.getBoard();
+        upButton = new JButton("Up");
+        downButton = new JButton("Down");
+        leftButton = new JButton("Left");
+        rightButton = new JButton("Right");
+        accuseButton = new JButton("Accuse");
+        endTurnButton = new JButton("End turn");
 
-        var boardSize = Board.SIZE;
-        var gridSize = boardSize * cellSize;
-        var outerBorderSize = 4; // Adjust this value to set the thickness of the outer border
+        controlPanel.add(upButton);
+        controlPanel.add(downButton);
+        controlPanel.add(leftButton);
+        controlPanel.add(rightButton);
+        controlPanel.add(accuseButton);
+        controlPanel.add(endTurnButton);
 
-        // Draw tiles
-        for (var i = 0; i < boardSize; i++) {
-            for (var j = 0; j < boardSize; j++) {
-                var x = getXAxis(j);
-                var y = getYAxis(i);
-                var tile = board.inspectTile(i, j);
-                g.setColor(tile.tileType().color()); // set the color depends on tile
-                g.fillRect(x, y, cellSize, cellSize);
-            }
-        }
-
-        board.getRooms().forEach(
-             r ->  {
-                 if (r.getLocations() != Locations.GREY_AREA) {
-                     g.setColor(Color.black);
-                     g.drawString(r.getLocations().toString(), getXAxis(r.getY1()), getYAxis(r.getX1()));
-                 }
-             }
-        );
-
-        // Draw players
-        game.getPlayerList().forEach(p -> {
-            g.setColor(p.getColor());
-            g.fillOval(getXAxis(p.y()), getYAxis(p.x()), cellSize, cellSize);
-            g.setColor(Color.black);
-            g.drawString(p.getName(), getXAxis(p.y()), getYAxis(p.x()));
+        upButton.addActionListener(e -> {
+            game.moveCurrentPlayer(Direction.NORTH);
+            repaint();
+        });
+        downButton.addActionListener(e -> {
+            game.moveCurrentPlayer(Direction.SOUTH);
+            repaint();
+        });
+        leftButton.addActionListener(e -> {
+            game.moveCurrentPlayer(Direction.WEST);
+            repaint();
+        });
+        rightButton.addActionListener(e -> {
+            game.moveCurrentPlayer(Direction.EAST);
+            repaint();
+        });
+        accuseButton.addActionListener(e -> {
+            // TODO
+        });
+        endTurnButton.addActionListener(e -> {
+            game.nextPlayer();
         });
 
-        // Draw grid
-        for (var i = 0; i < boardSize; i++) {
-            for (var j = 0; j < boardSize; j++) {
-                var x = getXAxis(j);
-                var y = getYAxis(i);
-                g.setColor(Color.LIGHT_GRAY);
-                g.drawLine(x, y, x, y + cellSize);
-                g.drawLine(x, y, x + cellSize, y);
-            }
+        add(controlPanel);
+    }
+
+
+    private static final class GamePanel extends JPanel {
+        private final Game game; // board object
+        private final int cellSize = 16;
+        private int xOffset = 10;
+        private int yOffset = 10;
+
+        private GamePanel(Game game) {
+            this.game = game;
         }
 
-        // Draw canvas border
-        ((Graphics2D) g).setStroke(new BasicStroke(outerBorderSize));
-        g.setColor(Color.BLACK);
-        g.drawRect(xOffset, yOffset, gridSize, gridSize);
+        @Override
+        protected void paintComponent(Graphics g) {
+            // Calling to clear the artifacts!
+            super.paintComponent(g);
 
+            var board = game.getBoard();
+
+            var boardSize = Board.SIZE;
+            var gridSize = boardSize * cellSize;
+            var outerBorderSize = 4; // Adjust this value to set the thickness of the outer border
+
+            // Draw tiles
+            for (var i = 0; i < boardSize; i++) {
+                for (var j = 0; j < boardSize; j++) {
+                    var x = getXAxis(j);
+                    var y = getYAxis(i);
+                    var tile = board.inspectTile(i, j);
+                    g.setColor(tile.tileType().color()); // set the color depends on tile
+                    g.fillRect(x, y, cellSize, cellSize);
+                }
+            }
+
+            board.getRoomNamesAndPositions().forEach((roomName, position) -> {
+                g.setColor(Color.black);
+                g.drawString(roomName, getXAxis(position.getValue()), getYAxis(position.getKey()));
+            });
+
+            // Draw players
+            game.getPlayerList().forEach(p -> {
+                g.setColor(p.getColor());
+                g.fillOval(getXAxis(p.getCurrentTileLocation().y()), getYAxis(p.getCurrentTileLocation().x()), cellSize, cellSize);
+                g.setColor(Color.black);
+                g.drawString(p.getName(), getXAxis(p.getCurrentTileLocation().y()), getYAxis(p.getCurrentTileLocation().x()));
+            });
+
+            // Draw grid
+            for (var i = 0; i < boardSize; i++) {
+                for (var j = 0; j < boardSize; j++) {
+                    var x = getXAxis(j);
+                    var y = getYAxis(i);
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.drawLine(x, y, x, y + cellSize);
+                    g.drawLine(x, y, x + cellSize, y);
+                }
+            }
+
+            // Draw canvas border
+            ((Graphics2D) g).setStroke(new BasicStroke(outerBorderSize));
+            g.setColor(Color.BLACK);
+            g.drawRect(xOffset, yOffset, gridSize, gridSize);
+        }
+
+        private int getXAxis(int j) {
+            return j * cellSize + xOffset;
+        }
+
+        private int getYAxis(int i) {
+            return i * cellSize + yOffset;
+        }
     }
-
-    private int getXAxis(int j) {
-        return j * cellSize + xOffset;
-    }
-
-    private int getYAxis(int i) {
-        return i * cellSize + yOffset;
-    }
-
 
 }

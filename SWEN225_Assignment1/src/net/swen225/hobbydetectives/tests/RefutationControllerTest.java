@@ -131,7 +131,7 @@ class RefutationControllerTest {
      * @return a new player.
      */
     public Player makePlayer(MockPlayerInfo info, Locations location, Card... hand) {
-      return new Player(info.name, null, -1, -1, hand) {
+      return new Player(info.name, null, null, hand) {
         @Override
         public String toString() {
           return info.name;

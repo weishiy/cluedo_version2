@@ -7,16 +7,16 @@ class Game {
 
 class Board {
   Tile[] board;
-  
+
   public void printBoard(List players) {
-    
+
   }
   public Tile inspectTile(int x, int y) {
-    
+
   }
-  
+
   public Tile getDirectionTile(Tile from, Direction d) {
-    
+
   }
   1 -- * Tile contains;
 }
@@ -30,20 +30,20 @@ class RefutationController {
 
 class Prompt {
   public void changePlayer(Player p) {}
-  
+
   public int makeSelection(List toSelect) {}
-  
+
   public Card selectCard(List toSelect) {}
-  
+
   1 -- 1 Game;
 }
 
 class Card {
-  
+
 }
 
 class CharacterCard {
- isA Card; 
+ isA Card;
 }
 
 class EstateCard {
@@ -63,30 +63,30 @@ class Tile {
 }
 
 class TileType {
-  
+
 }
 
 class Player {
   Tile currentTile;
   Locations currentLocation;
   Card[] hand;
-  
-  
+
+
   public void move(Tile newTile) {
-    
+
   }
-  
+
   public void teleport(Locations newLocation) {
   }
   public Card[] hand() {}
 }
 
 class Locations {
-  
+
 }
 
 class Direction {
-  
+
 }//$?[End_of_model]$?
 
 namespace -;
