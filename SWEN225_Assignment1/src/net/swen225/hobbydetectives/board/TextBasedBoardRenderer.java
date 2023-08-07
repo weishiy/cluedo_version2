@@ -1,4 +1,7 @@
-package net.swen225.hobbydetectives;
+package net.swen225.hobbydetectives.board;
+
+import net.swen225.hobbydetectives.board.model.BoardRenderer;
+import net.swen225.hobbydetectives.player.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,21 +57,22 @@ public class TextBasedBoardRenderer implements BoardRenderer {
                 }
             }
             // doors (overwriting walls)
-            r.doors().forEach(d -> tiles[d.getY()][d.getX()] = "\u001B[33m" + "[ ]" + "\u001B[0m"); // Yellow
+            r.doors().forEach(d -> tiles[d.y()][d.x()] = "\u001B[33m" + "[ ]" + "\u001B[0m"); // Yellow
 
             // room name (NOTE: room name spans several tiles)
             var centerY = (r.y1() + r.y2()) / 2;
             var minX = r.x1() + 1;
             var maxX = r.x2() - 1;
             var length = maxX - minX;
-            var estateName = r.estateCard().toString();
-            for (var deltaX = 0; deltaX <= length; deltaX++) {
-                var x = minX + deltaX;
+            var estateName = r.estateCard().toString() + "    ";
+            if (r.estateCard().toString().equals("Visitation Villa")) {estateName = "Visitation Villa  ";}
+            for (var deltaX = 0; deltaX <= (length * 2); deltaX++) {
+                //var x = minX + deltaX;
                 // for each tile, get 3 chars from estate name
                 var startingCharIndex = deltaX * 3;
                 if (startingCharIndex < estateName.length()) {
                     var endingCharIndex = Math.min(startingCharIndex + 3, estateName.length());
-                    tiles[centerY][x] = "\u001B[36m" + estateName.substring(startingCharIndex, endingCharIndex) + "\u001B[0m"; // Cyan
+                    tiles[centerY + (deltaX / 3)][minX + (deltaX % 3)] = "\u001B[36m" + estateName.substring(startingCharIndex, endingCharIndex) + "\u001B[0m"; // Cyan
                 }
             }
         });
@@ -81,7 +85,7 @@ public class TextBasedBoardRenderer implements BoardRenderer {
             }
         });
 
-        // Fill tiles with first characters of players (joined together if there're multiple players at the same
+        // Fill tiles with first characters of players (joined together if there are multiple players at the same
         // location), e,g " B " for Bert, "BM " for Bert and Malina, "BML" for Bert, Malina and Lucilla,
         // "ALL" for all 4 players
         // gather players by their location
@@ -105,7 +109,7 @@ public class TextBasedBoardRenderer implements BoardRenderer {
                 case 1 -> " " + firstCharactersJoined + " ";
                 case 2 -> firstCharactersJoined + " ";
                 case 3 -> firstCharactersJoined;
-                default -> " " + "ALL" + " ";  // In case there're more than 3 players at the same location, display "ALL"
+                default -> " " + "ALL" + " ";  // In case there are more than 3 players at the same location, display "ALL"
             };
         });
     }

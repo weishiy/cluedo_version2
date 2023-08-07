@@ -1,6 +1,13 @@
 package net.swen225.hobbydetectives.actions;
 
 import net.swen225.hobbydetectives.*;
+import net.swen225.hobbydetectives.actions.model.Action;
+import net.swen225.hobbydetectives.card.CardTriple;
+import net.swen225.hobbydetectives.card.CharacterCard;
+import net.swen225.hobbydetectives.card.EstateCard;
+import net.swen225.hobbydetectives.card.WeaponCard;
+import net.swen225.hobbydetectives.player.Player;
+import net.swen225.hobbydetectives.player.PlayerTurn;
 
 import java.util.Arrays;
 import java.util.Scanner;

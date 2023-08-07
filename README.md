@@ -12,7 +12,7 @@ True to life, the following specification may be incomplete or ambiguous in part
 
 ## Objective
 
-The game itself is a social deduction detective challenge to be played by 2-4 people using a 24x24 board divided into squares. The board itself has 5 estates and 4 2x2 non-interactable spots. Estates have walls and doors, with players being unable to move through walls but can move through doors to enter an estate or leave an estate respectively. 
+The game itself is a social deduction detective challenge to be played by 2-4 people using a 24x24 board divided into squares. The board itself has 5 estates and 4 2x2 non-intractable spots. Estates have walls and doors, with players being unable to move through walls but can move through doors to enter an estate or leave an estate respectively. 
 
 When players first start the game, they will be asked how many players are playing in this round and the system will randomly allocate each player a Character. The system will then take one random Character, one random Weapon and one random Estate and declare that in secret to be the final answer of the game. Each player is then given cards that represent the remaining Characters, Estates and Weapons randomly. Each player will then take turns to roll a 2d6 to move on the board. The characters are currently: Lucilla, Bert, Malina, and Percy (names are given in player turn order). 
 
@@ -30,7 +30,7 @@ As per the specification of the assignment, all I/O for the assignment but be te
    
 2. One player is selected to start at random.
    
-3. At the start of each turn, the program rolls two (virtual) dice to determine the move distance of the player who’s turn it is by using the sum of the dice values. The current player then moves their token to a desired spot on the grid.
+3. At the start of each turn, the program rolls two (virtual) dice to determine the move distance of the player whose turn it is by using the sum of the dice values. The current player then moves their token to a desired spot on the grid.
    
 4. Once a player has moved, they are presented with the option of making a guess or a solve attempt. All rules of the games must be enforced at all times, e.g., only guesses that involve the estate the current player is in, should be permitted.
   

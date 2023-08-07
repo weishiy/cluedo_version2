@@ -1,5 +1,7 @@
-package net.swen225.hobbydetectives;
+package net.swen225.hobbydetectives.board;
 
+
+import net.swen225.hobbydetectives.card.EstateCard;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,10 +22,10 @@ public class Board {
      */
     public Board() {
         // 5 rooms
-        rooms.add(new Estate(2, 2, 6, 6, EstateCard.HAUNTED_HOUSE, Set.of(new Door(6, 3), new Door(3, 6))));
-        rooms.add(new Estate(17, 2, 21, 6, EstateCard.CALAMITY_CASTLE, Set.of(new Door(17, 5), new Door(20, 6))));
+        rooms.add(new Estate(2, 2, 6, 6, EstateCard.HAUNTED_HOUSE, Set.of(new Door(6, 3), new Door(5, 6))));
+        rooms.add(new Estate(17, 2, 21, 6, EstateCard.MANIC_MANOR, Set.of(new Door(17, 5), new Door(20, 6))));
         rooms.add(new Estate(9, 10, 14, 13, EstateCard.VISITATION_VILLA, Set.of(new Door(12, 10), new Door(14, 11), new Door(9, 12), new Door(11, 13))));
-        rooms.add(new Estate(2, 17, 6, 21, EstateCard.MANIC_MANOR, Set.of(new Door(3, 17), new Door(6, 18))));
+        rooms.add(new Estate(2, 17, 6, 21, EstateCard.CALAMITY_CASTLE, Set.of(new Door(3, 17), new Door(6, 18))));
         rooms.add(new Estate(17, 17, 21, 21, EstateCard.PERIL_PALACE, Set.of(new Door(18, 17), new Door(17, 20))));
 
         // four grey areas
@@ -68,11 +70,7 @@ public class Board {
         }
 
         // Grey areas can not be entered
-        if(greyAreas.stream().anyMatch(r -> r.covers(x, y))) {
-            return false;
-        }
-
-        return true;
+	    return greyAreas.stream().noneMatch(r -> r.covers(x, y));
     }
 
 }

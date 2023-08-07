@@ -1,4 +1,4 @@
-package net.swen225.hobbydetectives;
+package net.swen225.hobbydetectives.board.model;
 
 public interface BoardRenderer {
     void render();

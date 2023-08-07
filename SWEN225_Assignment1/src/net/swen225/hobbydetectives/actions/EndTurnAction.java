@@ -1,6 +1,7 @@
 package net.swen225.hobbydetectives.actions;
 
-import net.swen225.hobbydetectives.PlayerTurn;
+import net.swen225.hobbydetectives.actions.model.Action;
+import net.swen225.hobbydetectives.player.PlayerTurn;
 
 public class EndTurnAction implements Action {
 

@@ -1,4 +1,6 @@
-package net.swen225.hobbydetectives;
+package net.swen225.hobbydetectives.card;
+
+import net.swen225.hobbydetectives.card.model.Card;
 
 import java.util.Arrays;
 
@@ -11,7 +13,7 @@ public enum EstateCard implements Card {
 
   private final String displayValue;
 
-  private EstateCard(String displayValue) {
+  EstateCard(String displayValue) {
     this.displayValue = displayValue;
   }
 

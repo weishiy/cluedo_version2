@@ -1,4 +1,6 @@
-package net.swen225.hobbydetectives;
+package net.swen225.hobbydetectives.board;
+
+import net.swen225.hobbydetectives.card.EstateCard;
 
 import java.util.*;
 

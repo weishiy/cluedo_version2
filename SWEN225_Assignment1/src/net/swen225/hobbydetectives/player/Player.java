@@ -1,4 +1,7 @@
-package net.swen225.hobbydetectives;
+package net.swen225.hobbydetectives.player;
+
+import net.swen225.hobbydetectives.card.CharacterCard;
+import net.swen225.hobbydetectives.card.model.Card;
 
 import java.util.*;
 

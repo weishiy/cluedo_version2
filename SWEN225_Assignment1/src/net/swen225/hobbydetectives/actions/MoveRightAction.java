@@ -1,8 +1,8 @@
 package net.swen225.hobbydetectives.actions;
 
-import net.swen225.hobbydetectives.Player;
-import net.swen225.hobbydetectives.PlayerTurn;
-import net.swen225.hobbydetectives.actions.Action;
+import net.swen225.hobbydetectives.actions.model.Action;
+import net.swen225.hobbydetectives.player.Player;
+import net.swen225.hobbydetectives.player.PlayerTurn;
 
 public class MoveRightAction implements Action {
 

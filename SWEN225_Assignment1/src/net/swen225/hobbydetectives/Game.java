@@ -1,5 +1,17 @@
 package net.swen225.hobbydetectives;
 
+import net.swen225.hobbydetectives.board.Board;
+import net.swen225.hobbydetectives.board.TextBasedBoardRenderer;
+import net.swen225.hobbydetectives.board.model.BoardRenderer;
+import net.swen225.hobbydetectives.card.CardTriple;
+import net.swen225.hobbydetectives.card.CharacterCard;
+import net.swen225.hobbydetectives.card.EstateCard;
+import net.swen225.hobbydetectives.card.model.Card;
+import net.swen225.hobbydetectives.card.WeaponCard;
+import net.swen225.hobbydetectives.player.Player;
+import net.swen225.hobbydetectives.player.PlayerTurn;
+import net.swen225.hobbydetectives.refutation.Prompt;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,12 +52,26 @@ public class Game {
         dispatchRemainingCards();
 
         board = new Board();
-
-        playerQueue.addAll(playerList);
+        
+        initPlayerQueue();
         boardRenderer = new TextBasedBoardRenderer(board, Set.copyOf(playerList));
-        prompt = new Prompt(this);
+        prompt = new Prompt();
 
         startGame();
+    }
+
+    private void initPlayerQueue() {
+        int randomPosition = (int) (Math.random() * 4);
+        int listPosition = randomPosition;
+        while (listPosition < playerList.size()) {
+            playerQueue.add(playerList.get(listPosition));
+            listPosition++;
+        }
+        listPosition = 0;
+        while (listPosition != randomPosition) {
+            playerQueue.add(playerList.get(listPosition));
+            listPosition++;
+        }
     }
 
     private void dispatchRemainingCards() {
@@ -86,11 +112,8 @@ public class Game {
             var currentPlayer = playerQueue.poll();
             var turn = new PlayerTurn(this, currentPlayer, Collections.unmodifiableList(playerQueue));
             turn.run();
-
-            if (currentPlayer.active()) {
-                // Add the currentPlayer to the end of the queue
-                playerQueue.offer(currentPlayer);
-            }
+            // Add the currentPlayer to the end of the queue
+            playerQueue.offer(currentPlayer);
         }
 
         var winner = playerList.stream().filter(Player::isWinner).findFirst().orElse(null);
@@ -122,10 +145,10 @@ public class Game {
     /**
      * Main function for running the game
      *
-     * @param args
+     * @param args String - unused arguments
      */
     public static void main(String[] args) {
-        Game board = new Game();
+        new Game();
     }
 
 }

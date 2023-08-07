@@ -1,15 +1,24 @@
-package net.swen225.hobbydetectives;
+package net.swen225.hobbydetectives.refutation;
+
+import net.swen225.hobbydetectives.Game;
+import net.swen225.hobbydetectives.board.Board;
+import net.swen225.hobbydetectives.card.CardTriple;
+import net.swen225.hobbydetectives.card.CharacterCard;
+import net.swen225.hobbydetectives.card.EstateCard;
+import net.swen225.hobbydetectives.card.model.Card;
+import net.swen225.hobbydetectives.card.WeaponCard;
+import net.swen225.hobbydetectives.player.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Controls game during refutation stage.
- * 
+ * <p></p>
  * Asks the given player to make a guess, then turns to each other player in turn to find whether
  * they can refute that guess. If no one can refute the guess, it's stored in `unrefutedGuess`, else
  * `unrefutedGuess` is left empty.
- * 
+ * <p></p>
  * This class was developed without knowing the final stage of the game. Specifically, it assumes
  * certain public methods of <code>Game</code>, <code>Board</code>, <code>Prompt</code> and
  * <code>Player</code>, and also assumes cards are uniquely identifiable by reference, and that
@@ -23,13 +32,11 @@ public class RefutationController {
   private final Player guesser;
   private final List<Player> nextPlayers = new ArrayList<>();
 
-  private Optional<CardTriple> unrefutedGuess = Optional.empty();
-
   /**
    * Creates this refutation, and immediately starts the refutation stage.
-   * 
+   * <p>
    * Assumes the current player is the guesser, i.e. don't have to switch manually.
-   * 
+   * <p>
    * Can call <code>unrefutedGuess()</code> to get the calculated guess.
    * 
    * @param game The current game.
@@ -48,22 +55,13 @@ public class RefutationController {
   }
 
   /**
-   * Returns unrefuted guess made during the refutation.
-   * 
-   * @return the guess.
-   */
-  public Optional<CardTriple> unrefutedGuess() {
-    return unrefutedGuess;
-  }
-
-  /**
    * Starts the refutation process, if successful changes <code>unrefutedGuess</code>
    */
   private void start() {
     CardTriple guess = askGuess();
     boolean isSolution = tryRefuteAll(guess);
     if (isSolution) {
-      this.unrefutedGuess = Optional.of(guess);
+      //Optional<CardTriple> unrefutedGuess = Optional.of(guess); Unsure if we still need this?
       giveUnrefuted(guess);
     }
   }
@@ -91,7 +89,7 @@ public class RefutationController {
   }
 
   /**
-   * Tests each player for refutes, if they can switches to them asking which refute they would like
+   * Tests each player for refutes, if they can switch to them asking which refute they would like
    * to choose, and then switches to the guesser and delivers the refute.
    * 
    * @param guess the cards compared to refute with.
@@ -101,12 +99,15 @@ public class RefutationController {
     Iterator<Player> iter = nextPlayers.iterator();
     for (Player refuter = iter.next(); iter.hasNext(); refuter = iter.next()) {
       Set<Card> refutes = getRefutes(guess, refuter);
-      Card refuteWith = null;
+      Card refuteWith;
 
-      if (refutes.size() == 1) { // The player must refute with one card, doesn't ask for permission
+      if(refutes.isEmpty()){
+        //the player has no cards to refute with
+        continue;
+      } else if (refutes.size() == 1) { // The player must refute with one card, doesn't ask for permission
         refuteWith = refutes.iterator().next();
         tellRefute(refuter, refuteWith);
-      } else if (!refutes.isEmpty()) { // The player chooses what to refute with
+      } else { // The player chooses what to refute with
         refuteWith = askRefute(refuter, refutes);
       }
 
@@ -117,7 +118,7 @@ public class RefutationController {
       }
     }
 
-    return true; // No one refutes: this guess is a solution.
+    return true; // No one refutes: this guess is a possible solution.
   }
 
   /**
@@ -145,9 +146,8 @@ public class RefutationController {
    */
   private Set<Card> getRefutes(CardTriple guess, Player player) {
     // Simple filter and collector
-    Set<Card> refutes = player.hand().stream().filter(inHand -> guess.toSet().contains(inHand))
+      return player.hand().stream().filter(inHand -> guess.toSet().contains(inHand))
         .collect(Collectors.toSet());
-    return refutes;
   }
 
   /**
