@@ -31,10 +31,10 @@ public class Game {
      * Main constructor, set up for game's need, but not finished yet.
      */
     public Game() {
-        playerList.add(new Player(CharacterCard.LUCILLA, 6, 11));
-        playerList.add(new Player(CharacterCard.BERT, 9, 1));
-        playerList.add(new Player(CharacterCard.MALINA, 22, 9));
-        playerList.add(new Player(CharacterCard.PERCY, 15, 22));
+        playerList.add(new Player(CharacterCard.LUCILLA, 11, 1));
+        playerList.add(new Player(CharacterCard.BERT, 1, 9));
+        playerList.add(new Player(CharacterCard.MALINA, 9, 22));
+        playerList.add(new Player(CharacterCard.PERCY, 22, 14));
 
         generateSolution();
         dispatchRemainingCards();
