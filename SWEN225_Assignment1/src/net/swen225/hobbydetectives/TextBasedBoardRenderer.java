@@ -83,7 +83,7 @@ public class TextBasedBoardRenderer implements BoardRenderer {
 
         // Fill tiles with first characters of players (joined together if there're multiple players at the same
         // location), e,g " B " for Bert, "BM " for Bert and Malina, "BML" for Bert, Malina and Lucilla,
-        // " <numberOfPlayers> " for more than 3 players
+        // "ALL" for all 4 players
         // gather players by their location
         var buckets = new HashMap<String, Set<Player>>();
         players.stream()
@@ -105,7 +105,7 @@ public class TextBasedBoardRenderer implements BoardRenderer {
                 case 1 -> " " + firstCharactersJoined + " ";
                 case 2 -> firstCharactersJoined + " ";
                 case 3 -> firstCharactersJoined;
-                default -> " " + b.size() + " ";  // In case there're more than 3 players at the same location, display the number of players
+                default -> " " + "ALL" + " ";  // In case there're more than 3 players at the same location, display "ALL"
             };
         });
     }
