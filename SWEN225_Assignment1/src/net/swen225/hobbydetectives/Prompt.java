@@ -23,14 +23,7 @@ public class Prompt {
     System.out.println("Refuting...");
     System.out.println("Current refuter is: " + player.characterCard().toString());
     System.out.println("Press Enter key to continue...");
-    try {
-      System.in.read();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    // Print 100 empty lines to clear terminal history
-    IntStream.range(0, 100).forEach(a -> System.out.println());
+    waitForEnter();
   }
 
   /**
@@ -47,14 +40,7 @@ public class Prompt {
     System.out.println("Refutation ended");
     System.out.println("Current player is: " + player.characterCard().toString());
     System.out.println("Press Enter key to continue...");
-    try {
-      System.in.read();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    // Print 100 empty lines to clear terminal history
-    IntStream.range(0, 100).forEach(a -> System.out.println());
+    waitForEnter();
   }
 
   /**
@@ -134,12 +120,10 @@ public class Prompt {
    */
   public void displayCard(String message, Card card) {
     System.out.println(message + " " + card.toString());
-    System.out.println("Press Enter key to continue...");
     try {
-      System.in.read();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {}
+    waitForEnter();
   }
 
   /**
@@ -150,6 +134,10 @@ public class Prompt {
    */
   public void displayCardTriple(String toDisplay, CardTriple triple) {
     System.out.println(toDisplay + " " + triple);
+    try {
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {}
+    waitForEnter();
   }
 
   /**
@@ -161,6 +149,15 @@ public class Prompt {
     System.out.println(toDisplay);
   }
 
-
+  /**
+   *  Waits for the user to press Enter
+   */
+public void waitForEnter() {
+  try {
+      System.in.read();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+}
 
 }
