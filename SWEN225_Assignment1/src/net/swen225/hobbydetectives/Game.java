@@ -22,6 +22,7 @@ public class Game {
     private final Prompt prompt;
     private CardTriple solution;
     private final List<Player> playerList = new ArrayList<>();
+    private final List<Player> activePlayers = new ArrayList<>();
     private final LinkedList<Player> playerQueue = new LinkedList<>();
 
     private boolean running = false;
@@ -47,6 +48,7 @@ public class Game {
         playerList.add(new Player(CharacterCard.BERT, 1, 9));
         playerList.add(new Player(CharacterCard.MALINA, 9, 22));
         playerList.add(new Player(CharacterCard.PERCY, 22, 14));
+        activePlayers.addAll(playerList);
 
         generateSolution();
         dispatchRemainingCards();
@@ -107,13 +109,16 @@ public class Game {
 
     private void startGame() {
         running = true;
-        while (running && !playerQueue.isEmpty()) {
+        while (running && !activePlayers.isEmpty()) {
             // Get one player out from the top of the queue
             var currentPlayer = playerQueue.poll();
             var turn = new PlayerTurn(this, currentPlayer, Collections.unmodifiableList(playerQueue));
             turn.run();
             // Add the currentPlayer to the end of the queue
             playerQueue.offer(currentPlayer);
+            if (!currentPlayer.active()) {
+                activePlayers.remove(currentPlayer);
+            }
         }
 
         var winner = playerList.stream().filter(Player::isWinner).findFirst().orElse(null);
