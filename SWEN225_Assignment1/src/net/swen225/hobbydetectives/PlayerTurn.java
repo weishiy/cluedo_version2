@@ -86,9 +86,9 @@ public class PlayerTurn {
         }
         if (game.board().getEstateAt(currentPlayer.x(), currentPlayer.y()) != null) {
             allowedActions.add(new GuessAction(game, currentPlayer, nextPlayers));
+            allowedActions.add(new EndTurnAction(this));
         }
         allowedActions.add(new AccuseAction(game, this, currentPlayer));
-        allowedActions.add(new EndTurnAction(this));
 
         return allowedActions;
     }
