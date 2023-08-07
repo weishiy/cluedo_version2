@@ -102,7 +102,8 @@ public class PlayerTurn {
     }
 
     private int rollTwoDices() {
-        return (int) (Math.random() * 6) + (int) (Math.random() * 6);
+        // Math.ceil ensures we get values 1-6 rather than 0-5
+        return (int) Math.ceil(Math.random() * 6) + (int) Math.ceil(Math.random() * 6);
     }
 
 }
