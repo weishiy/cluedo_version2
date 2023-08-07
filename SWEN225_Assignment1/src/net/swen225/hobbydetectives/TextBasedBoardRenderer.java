@@ -38,7 +38,7 @@ public class TextBasedBoardRenderer implements BoardRenderer {
     private void updateTiles() {
         for (var y = 0; y < board.getHeight(); y++) {       // for each row
             for (var x = 0; x < board.getWidth(); x++) {    // for each cell
-                tiles[y][x] = "\u001B[35;1m" + " - " + "\u001B[0m";
+                tiles[y][x] = "\u001B[35;1m" + " - " + "\u001B[0m"; // Magenta
             }
         }
 
@@ -47,14 +47,14 @@ public class TextBasedBoardRenderer implements BoardRenderer {
             for (var y = r.y1(); y <= r.y2(); y++) {
                 for (var x = r.x1(); x <= r.x2(); x++) {
                     if (x == r.x1() || x == r.x2() || y == r.y1() || y == r.y2()) {
-                        tiles[y][x] = "\u001B[30;1m" + "[#]" + "\u001B[0m";
+                        tiles[y][x] = "\u001B[30;1m" + "[#]" + "\u001B[0m"; // Grey
                     } else {
-                        tiles[y][x] = "   ";
+                        tiles[y][x] = "   "; // White
                     }
                 }
             }
             // doors (overwriting walls)
-            r.doors().forEach(d -> tiles[d.getY()][d.getX()] = "\u001B[33m" + "[ ]" + "\u001B[0m");
+            r.doors().forEach(d -> tiles[d.getY()][d.getX()] = "\u001B[33m" + "[ ]" + "\u001B[0m"); // Yellow
 
             // room name (NOTE: room name spans several tiles)
             var centerY = (r.y1() + r.y2()) / 2;
@@ -68,7 +68,7 @@ public class TextBasedBoardRenderer implements BoardRenderer {
                 var startingCharIndex = deltaX * 3;
                 if (startingCharIndex < estateName.length()) {
                     var endingCharIndex = Math.min(startingCharIndex + 3, estateName.length());
-                    tiles[centerY][x] = "\u001B[36m" + estateName.substring(startingCharIndex, endingCharIndex) + "\u001B[0m";
+                    tiles[centerY][x] = "\u001B[36m" + estateName.substring(startingCharIndex, endingCharIndex) + "\u001B[0m"; // Cyan
                 }
             }
         });
@@ -76,7 +76,7 @@ public class TextBasedBoardRenderer implements BoardRenderer {
         board.getGreyAreas().forEach(r -> {
             for (int y = r.y1(); y <= r.y2(); y++) {
                 for (int x = r.x1(); x <= r.x2(); x++) {
-                    tiles[y][x] = "\u001B[30;1m" + "[x]"  + "\u001B[0m";
+                    tiles[y][x] = "\u001B[30;1m" + "[x]"  + "\u001B[0m"; // Grey
                 }
             }
         });
