@@ -1,136 +1,131 @@
 package net.swen225.hobbydetectives;
 
 import java.util.*;
-
-import GUI.GameGUI;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class Game {
 
-  private List<Player> turnOrder = new ArrayList<Player>();
+    private final Board board; // game board
+    private final BoardRenderer boardRenderer;
+    private final Prompt prompt;
+    private CardTriple solution;
+    private final List<Player> playerList = new ArrayList<>();
+    private final LinkedList<Player> playerQueue = new LinkedList<>();
 
-  private Prompt prompt;
+    private boolean running = false;
 
-  /**
-   * Maps the CharacterCard to the corresponding player.
-   */
-  private Map<CharacterCard, Player> characterCardToPlayer;
-
-  /**
-   * Gets map of CharacterCards to players.
-   * 
-   * @return this map.
-   */
-  public Map<CharacterCard, Player> characterCardToPlayer() {
-    return Collections.unmodifiableMap(characterCardToPlayer);
-  }
-
-  /**
-   * Returns the current prompt.
-   * 
-   * @return The current prompt.
-   */
-  public Prompt prompt() {
-    return prompt;
-  }
-
-
-  public Board board() {
-    return board;
-  }
-
-  /**
-   * Returns the 3 next players who are after the current one in turn order.
-   * 
-   * @return <code>Stream</code> of the players to come.
-   */
-
-  /*todo
-   * I feel as if there is an easier way to do this,
-   * I proposed a bubble sort method and attaching a specific ID onto each player to identify
-   * their placement.
-   *
-   * Have a look and tell me what you think, I suspect it might be easier
-   *
-   */
-  public Iterator<Player> getNextPlayers() {
-    // TODO: Stub
-    return null;
-  }
-
-  private final Board board; // game board
-  private final List<Player> playerList = new ArrayList<>();
-  private final GameGUI gameGUI;
-
-
-  /**
-   * Main constructor, set up for game's need, but not finished yet.
-   */
-  public Game() {
-    board = new Board();
-    // print board for debugging purpose
-    System.out.print(board);
-
-    //rearranged player creation to respect turn order via turnID
-    playerList.add(new Player("Lucilla", Color.GREEN, 1, 11, 1));
-    playerList.add(new Player("Bert", Color.YELLOW, 9, 1, 2));
-    playerList.add(new Player("Malina", Color.BLUE, 22, 9, 3));
-    playerList.add(new Player("Percy", Color.RED, 15, 22, 4));
-
-    playerList.forEach(p -> p.setCurrentTileLocation(board.inspectTile(p.x(), p.y())));
-    gameGUI = new GameGUI(this);
-
-    SwingUtilities.invokeLater(() -> {
-      gameGUI.setVisible(true);
-    });
-
-
-
-  }
-
-  /**
-   * Main function for running the game
-   * 
-   * @param args
-   */
-
-  public static void main(String[] args) {
-    Game board = new Game();
-  }
-
-  public Board getBoard() {
-    return board;
-  }
-
-  public List<Player> getPlayerList() {
-    return playerList;
-  }
-
-  void createGameStartingPoint(List<Player> playerList, int playerAmount){
-
-  }
-
-  private List<Player> sortTurnOrder(){
-    return turnOrder.stream().sorted(Comparator.comparingInt(Player::turnID)).toList();
-  }
-
-  /***
-   * Creates a prompt to ask how many users are playing
-   * @return Integer - how many people are playing (between 2-4)
-   * @throws IllegalAccessException - Preformed when an invalid input it given
-   */
-  private int getCurrentPlayerCount() throws IllegalAccessException {
-    String response = prompt.prompt("How many people are playing?", Set.of("2", "3", "4"));
-    String[] promptResponse = response.split("::");
-    if(promptResponse[0].equals("ERROR")){
-      throw new IllegalAccessException("Invalid prompt response");
+    public Board board() {
+        return board;
     }
-    return Integer.parseInt(promptResponse[1]);
-  }
 
+    /**
+     * Returns the current prompt.
+     *
+     * @return The current prompt.
+     */
+    public Prompt prompt() {
+        return prompt;
+    }
+
+    /**
+     * Main constructor, set up for game's need, but not finished yet.
+     */
+    public Game() {
+        playerList.add(new Player(CharacterCard.LUCILLA, 6, 11));
+        playerList.add(new Player(CharacterCard.BERT, 9, 1));
+        playerList.add(new Player(CharacterCard.MALINA, 22, 9));
+        playerList.add(new Player(CharacterCard.PERCY, 15, 22));
+
+        generateSolution();
+        dispatchRemainingCards();
+
+        board = new Board();
+
+        playerQueue.addAll(playerList);
+        boardRenderer = new TextBasedBoardRenderer(board, Set.copyOf(playerList));
+        prompt = new Prompt(this);
+
+        startGame();
+    }
+
+    private void dispatchRemainingCards() {
+        var remainingCards = new ArrayList<Card>();
+        remainingCards.addAll(Arrays.stream(CharacterCard.values()).filter(c -> c != solution.character()).toList());
+        remainingCards.addAll(Arrays.stream(EstateCard.values()).filter(c -> c != solution.estate()).toList());
+        remainingCards.addAll(Arrays.stream(WeaponCard.values()).filter(c -> c != solution.weapon()).toList());
+        Collections.shuffle(remainingCards);
+
+        var playerIndex = 0;
+        for (var nextCard : remainingCards) {
+            playerList.get(playerIndex).addCard(nextCard);
+            playerIndex++;
+            playerIndex = playerIndex % playerList.size();
+        }
+    }
+
+    private void generateSolution() {
+        var allCharacterCards = Arrays.stream(CharacterCard.values()).collect(Collectors.toCollection(ArrayList::new));
+        var randomCharacterCardIndex = (new Random()).nextInt(CharacterCard.values().length);
+        var randomCharacterCard = allCharacterCards.get(randomCharacterCardIndex);
+
+        var allEstateCards = Arrays.stream(EstateCard.values()).collect(Collectors.toCollection(ArrayList::new));
+        var randomEstateCardIndex = (new Random()).nextInt(EstateCard.values().length);
+        var randomEstateCard = allEstateCards.get(randomEstateCardIndex);
+
+        var allWeaponCards = Arrays.stream(WeaponCard.values()).collect(Collectors.toCollection(ArrayList::new));
+        var randomWeaponCardIndex = (new Random()).nextInt(WeaponCard.values().length);
+        var randomWeaponCard = allWeaponCards.get(randomWeaponCardIndex);
+
+        solution = new CardTriple(randomCharacterCard, randomEstateCard, randomWeaponCard);
+    }
+
+    private void startGame() {
+        running = true;
+        while (running && !playerQueue.isEmpty()) {
+            // Get one player out from the top of the queue
+            var currentPlayer = playerQueue.poll();
+            var turn = new PlayerTurn(this, currentPlayer, Collections.unmodifiableList(playerQueue));
+            turn.run();
+
+            if (currentPlayer.active()) {
+                // Add the currentPlayer to the end of the queue
+                playerQueue.offer(currentPlayer);
+            }
+        }
+
+        var winner = playerList.stream().filter(Player::isWinner).findFirst().orElse(null);
+        if (winner != null) {
+            System.out.println("Winner is: " + winner.characterCard().toString());
+        } else {
+            System.out.println("No winner");
+            System.out.println("Solution is: " + solution);
+        }
+        System.out.println("Game ended.");
+    }
+
+    public Player findPlayer(CharacterCard card) {
+        return playerList.stream().filter(p -> p.characterCard() == card).findFirst().orElse(null);
+    }
+
+    public BoardRenderer boardRenderer() {
+        return boardRenderer;
+    }
+
+    public CardTriple solution() {
+        return solution;
+    }
+
+    public void endGame() {
+        running = false;
+    }
+
+    /**
+     * Main function for running the game
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        Game board = new Game();
+    }
 
 }

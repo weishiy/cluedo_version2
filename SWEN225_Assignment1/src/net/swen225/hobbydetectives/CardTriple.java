@@ -29,4 +29,8 @@ public record CardTriple(CharacterCard character, EstateCard estate, WeaponCard 
   public Set<Card> toSet() {
     return Set.of(character, estate, weapon);
   }
+
+  public String toString() {
+    return String.join(", ", character.toString(), estate.toString(), weapon.toString());
+  }
 }

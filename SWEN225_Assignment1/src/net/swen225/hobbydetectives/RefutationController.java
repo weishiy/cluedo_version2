@@ -1,8 +1,6 @@
 package net.swen225.hobbydetectives;
 
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +21,7 @@ public class RefutationController {
   private final Prompt prompt;
 
   private final Player guesser;
+  private final List<Player> nextPlayers = new ArrayList<>();
 
   private Optional<CardTriple> unrefutedGuess = Optional.empty();
 
@@ -37,12 +36,13 @@ public class RefutationController {
    * @param guesser The player who is making the guess.
    * 
    */
-  public RefutationController(Game game, Player guesser) {
+  public RefutationController(Game game, Player guesser, List<Player> nextPlayers) {
     this.game = game;
     this.board = game.board();
     this.prompt = game.prompt();
 
     this.guesser = guesser;
+    this.nextPlayers.addAll(nextPlayers);
 
     start();
   }
@@ -78,14 +78,14 @@ public class RefutationController {
     WeaponCard weapon = prompt.promptCard("Guess the murder weapon:", WeaponCard.values());
     CharacterCard characterCard = prompt.promptCard("Guess the killer:", CharacterCard.values());
 
-    Locations location = guesser.getCurrentRoom();
-
-    EstateCard estate = Board.locationsToEstateCard.get(location);
+    EstateCard estate = board.getEstateAt(guesser.x(), guesser.y()).estateCard();
     assert estate != null : "The player making the guess is not in an estate.";
 
-    Player guessedCharacter = game.characterCardToPlayer().get(characterCard);
+    Player guessedCharacter = game.findPlayer(characterCard);
     assert guessedCharacter != null : "The character wasn't associated to a card.";
-    guessedCharacter.teleport(location);
+    // move the guessed character to guesser's location
+    guessedCharacter.x(guesser.x());
+    guessedCharacter.y(guesser.y());
 
     return new CardTriple(characterCard, estate, weapon);
   }
@@ -98,7 +98,7 @@ public class RefutationController {
    * @return <code>true</code> if the guess wasn't refuted, <code>false</code> otherwise.
    */
   private boolean tryRefuteAll(CardTriple guess) {
-    Iterator<Player> iter = game.getNextPlayers();
+    Iterator<Player> iter = nextPlayers.iterator();
     for (Player refuter = iter.next(); iter.hasNext(); refuter = iter.next()) {
       Set<Card> refutes = getRefutes(guess, refuter);
       Card refuteWith = null;
@@ -124,7 +124,7 @@ public class RefutationController {
    * Switches to <code>refuter</code>, and asks them to select a refute.
    */
   private Card askRefute(Player refuter, Set<Card> refutes) {
-    prompt.changePlayer(refuter);
+    prompt.changeRefuter(refuter);
     return prompt.promptCard("Select card to refute with:", refutes);
   }
 
@@ -132,7 +132,7 @@ public class RefutationController {
    * Switches to <code>refuter</code>, and tells them the card they must refute with.
    */
   private void tellRefute(Player refuter, Card refuteWith) {
-    prompt.changePlayer(refuter);
+    prompt.changeRefuter(refuter);
     prompt.displayCard("You must refute with:", refuteWith);
   }
 

@@ -1,7 +1,11 @@
 package net.swen225.hobbydetectives;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Prompt {
   private Game game;
@@ -12,6 +16,23 @@ public class Prompt {
     scan = new Scanner(System.in);
   }
 
+  public void changeRefuter(Player player) {
+    // Print 100 empty lines to clear terminal history
+    IntStream.range(0, 100).forEach(a -> System.out.println());
+
+    System.out.println("Refuting...");
+    System.out.println("Current refuter is: " + player.characterCard().toString());
+    System.out.println("Press Enter key to continue...");
+    try {
+      System.in.read();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    // Print 100 empty lines to clear terminal history
+    IntStream.range(0, 100).forEach(a -> System.out.println());
+  }
+
   /**
    * Hands off control to the specified player.
    * 
@@ -19,7 +40,22 @@ public class Prompt {
    * 
    * @param player
    */
-  public void changePlayer(Player player) {}
+  public void changePlayer(Player player) {
+    // Print 100 empty lines to clear terminal history
+    IntStream.range(0, 100).forEach(a -> System.out.println());
+
+    System.out.println("Refutation ended");
+    System.out.println("Current player is: " + player.characterCard().toString());
+    System.out.println("Press Enter key to continue...");
+    try {
+      System.in.read();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    // Print 100 empty lines to clear terminal history
+    IntStream.range(0, 100).forEach(a -> System.out.println());
+  }
 
   /**
    * Asks the player a question, accepting only certain responses.
@@ -60,8 +96,18 @@ public class Prompt {
    * @return The card the player chose.
    */
   public <R extends Card> R promptCard(String question, Set<R> acceptableCards) {
-    // TODO: Stub
-    return null;
+    while (true) {
+      System.out.println(question);
+      System.out.println("    " + acceptableCards.stream().map(Card::toString).collect(Collectors.joining(", ")));
+      var s = new Scanner(System.in);
+      var userInput = s.nextLine();
+      var card = acceptableCards.stream().filter(c -> c.toString().equalsIgnoreCase(userInput)).findFirst().orElse(null);
+      if (card == null) {
+        System.out.println("Invalid input: " + userInput);
+      } else {
+        return card;
+      }
+    }
   }
 
   /**
@@ -87,8 +133,13 @@ public class Prompt {
    * @param card the card to print.
    */
   public void displayCard(String message, Card card) {
-    // TODO Auto-generated method stub
-
+    System.out.println(message + " " + card.toString());
+    System.out.println("Press Enter key to continue...");
+    try {
+      System.in.read();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -98,8 +149,7 @@ public class Prompt {
    * @param triple the cards to display.
    */
   public void displayCardTriple(String toDisplay, CardTriple triple) {
-    // TODO Auto-generated method stub
-
+    System.out.println(toDisplay + " " + triple);
   }
 
   /**
@@ -108,8 +158,7 @@ public class Prompt {
    * @param toDisplay the String to display.
    */
   public void display(String toDisplay) {
-    // TODO Auto-generated method stub
-
+    System.out.println(toDisplay);
   }
 
 
