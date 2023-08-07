@@ -20,7 +20,7 @@ public enum CharacterCard implements Card {
   }
 
   public static CharacterCard fromString(String value) {
-    return Arrays.stream(CharacterCard.values()).filter(c -> c.toString().equals(value)).findFirst().orElse(null);
+    return Arrays.stream(CharacterCard.values()).filter(c -> c.toString().equalsIgnoreCase(value)).findFirst().orElse(null);
   }
 
 }

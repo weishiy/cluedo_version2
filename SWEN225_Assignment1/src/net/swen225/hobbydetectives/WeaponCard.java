@@ -17,6 +17,6 @@ public enum WeaponCard implements Card {
   }
 
   public static WeaponCard fromString(String value) {
-    return Arrays.stream(WeaponCard.values()).filter(c -> c.toString().equals(value)).findFirst().orElse(null);
+    return Arrays.stream(WeaponCard.values()).filter(c -> c.toString().equalsIgnoreCase(value)).findFirst().orElse(null);
   }
 }
