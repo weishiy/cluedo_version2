@@ -29,7 +29,7 @@ public class PlayerTurn {
             // Print 100 empty lines to clear terminal history
             IntStream.range(0, 100).forEach(a -> System.out.println());
             System.out.println("Next player is: " + currentPlayer.characterCard().toString());
-            System.out.println("Press Enter key to continue...");
+            System.out.println("Press Enter key to roll...");
 
             System.in.read();
 
