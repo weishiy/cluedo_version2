@@ -17,7 +17,7 @@ public class MoveDownAction implements Action {
 
     @Override
     public boolean accept(String userInput) {
-        return "D".equals(userInput);
+        return "D".equalsIgnoreCase(userInput);
     }
 
     @Override

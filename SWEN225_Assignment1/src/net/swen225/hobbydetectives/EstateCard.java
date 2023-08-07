@@ -21,6 +21,6 @@ public enum EstateCard implements Card {
   }
 
   public static EstateCard fromString(String value) {
-    return Arrays.stream(EstateCard.values()).filter(c -> c.toString().equals(value)).findFirst().orElse(null);
+    return Arrays.stream(EstateCard.values()).filter(c -> c.toString().equalsIgnoreCase(value)).findFirst().orElse(null);
   }
 }

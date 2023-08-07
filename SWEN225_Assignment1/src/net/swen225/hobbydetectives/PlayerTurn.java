@@ -29,7 +29,7 @@ public class PlayerTurn {
             // Print 100 empty lines to clear terminal history
             IntStream.range(0, 100).forEach(a -> System.out.println());
             System.out.println("Next player is: " + currentPlayer.characterCard().toString());
-            System.out.println("Press Enter key to continue...");
+            System.out.println("Press Enter key to roll...");
 
             System.in.read();
 
@@ -86,9 +86,9 @@ public class PlayerTurn {
         }
         if (game.board().getEstateAt(currentPlayer.x(), currentPlayer.y()) != null) {
             allowedActions.add(new GuessAction(game, currentPlayer, nextPlayers));
+            allowedActions.add(new EndTurnAction(this));
         }
         allowedActions.add(new AccuseAction(game, this, currentPlayer));
-        allowedActions.add(new EndTurnAction(this));
 
         return allowedActions;
     }
@@ -102,7 +102,8 @@ public class PlayerTurn {
     }
 
     private int rollTwoDices() {
-        return (int) (Math.random() * 6) + (int) (Math.random() * 6);
+        // Math.ceil ensures we get values 1-6 rather than 0-5
+        return (int) Math.ceil(Math.random() * 6) + (int) Math.ceil(Math.random() * 6);
     }
 
 }
