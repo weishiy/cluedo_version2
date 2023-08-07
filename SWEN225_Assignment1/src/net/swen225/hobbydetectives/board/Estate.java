@@ -27,7 +27,7 @@ public class Estate {
         this.y2 = y2;
         this.estateCard = estateCard;
         doors.forEach(d -> {
-            if (!isOnWall(d.getX(), d.getY()) || isAtCorner(d.getX(), d.getY())) {
+            if (!isOnWall(d.x(), d.y()) || isAtCorner(d.x(), d.y())) {
                 throw new IllegalArgumentException("Door must be on the wall and not at the corner");
             }
         });
