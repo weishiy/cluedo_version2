@@ -83,6 +83,12 @@ public class GuessBean {
          * Game prompts guesser to choose weapon (murder weapon).
          */
         CHOOSE_WEAPON,
+
+        /**
+         * Prompts player to hand device over to <code>currentPlayer</code>.
+         */
+        CHANGE_PLAYER,
+
         /**
          * Game prompts refuter to choose card to refute with.
          */
