@@ -9,8 +9,14 @@ public class MovementBean {
     private boolean canMoveDown;
     private boolean canMoveLeft;
     private boolean canMoveRight;
-    /** If the player is in an estate, they can guess*/
+    /**
+     * If the player is in an estate, they can guess
+     */
     private boolean canGuess;
+    /**
+     * How many steps the current player can take.
+     */
+    private int stepsLeft;
 
     public void canMoveUp(boolean canMoveUp) {
         this.canMoveUp = canMoveUp;
@@ -39,6 +45,7 @@ public class MovementBean {
     public void canMoveRight(boolean canMoveRight) {
         this.canMoveRight = canMoveRight;
     }
+
     public boolean canMoveRight() {
         return canMoveRight;
     }
@@ -49,6 +56,14 @@ public class MovementBean {
 
     public boolean canGuess() {
         return canGuess;
+    }
+
+    public void stepsLeft(int stepsLeft) {
+        this.stepsLeft = stepsLeft;
+    }
+
+    public int stepsLeft() {
+        return stepsLeft;
     }
 
 }
