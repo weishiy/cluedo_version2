@@ -1,4 +1,4 @@
-package net.swen225.hobbydetectives.gui;
+package net.swen225.hobbydetectives.ui.bean;
 
 import net.swen225.hobbydetectives.board.Board;
 import net.swen225.hobbydetectives.player.Player;

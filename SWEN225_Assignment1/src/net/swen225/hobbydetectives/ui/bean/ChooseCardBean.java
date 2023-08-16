@@ -1,4 +1,4 @@
-package net.swen225.hobbydetectives.gui;
+package net.swen225.hobbydetectives.ui.bean;
 
 import net.swen225.hobbydetectives.card.model.Card;
 

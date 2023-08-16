@@ -1,4 +1,4 @@
-package net.swen225.hobbydetectives.gui;
+package net.swen225.hobbydetectives.ui.bean;
 
 /**
  * Data for blocking (computer waits) dialogues.
