@@ -6,7 +6,10 @@ import net.swen225.hobbydetectives.player.Player;
 import java.util.Collections;
 import java.util.Set;
 
-public class GameBean {
+/**
+ * Represents information used to render the Board of the game.
+ */
+public class BoardBean {
     /* Contains data relating to locations of estates and grey areas. */
     private Board board;
     /* Contains all players in the game, including their names and location data. */
