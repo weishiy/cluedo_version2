@@ -18,6 +18,11 @@ public class GuessBean {
     private Player currentPlayer;
 
     /**
+     * Current state of guessing process.
+     */
+    private GuessState guessState;
+
+    /**
      * Whether to display this dialogue.
      */
     private boolean visible;
@@ -36,6 +41,14 @@ public class GuessBean {
 
     public Player currentPlayer() {
         return currentPlayer;
+    }
+
+    public void guessState(GuessState guessState) {
+        this.guessState = guessState;
+    }
+
+    public GuessState guessState() {
+        return guessState;
     }
 
     public void visible(boolean visible) {
