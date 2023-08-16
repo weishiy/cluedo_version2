@@ -18,7 +18,7 @@ public class BoardBean {
     private Player currentPlayer;
 
     /* Whether we are in between turns. When changing players, the board is hidden, and input is limited. */
-    private boolean changingPlayers;
+    private boolean visible;
 
     public void board(Board board) {
         this.board = board;
@@ -44,12 +44,12 @@ public class BoardBean {
         return currentPlayer;
     }
 
-    public void changingPlayers(boolean changingPlayers) {
-        this.changingPlayers = changingPlayers;
+    public void visible(boolean visible) {
+        this.visible = visible;
     }
 
-    public boolean changingPlayers() {
-        return changingPlayers;
+    public boolean visible() {
+        return visible;
     }
 
 
