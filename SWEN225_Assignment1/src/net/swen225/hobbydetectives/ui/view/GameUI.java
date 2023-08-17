@@ -5,6 +5,8 @@ import net.swen225.hobbydetectives.ui.bean.BoardBean;
 import net.swen225.hobbydetectives.ui.bean.ChooseCardBean;
 import net.swen225.hobbydetectives.ui.bean.PauseMessageBean;
 
+import java.util.concurrent.Future;
+
 /**
  * Manages the view of the game.
  */
@@ -17,19 +19,20 @@ public interface GameUI {
     void render(BoardBean boardBean);
 
     /**
-     * Creates a dialogue for selecting a card, and waits for the player to select the card.
+     * Creates a dialogue for selecting a card, and returns a future containing the selected card.
      *
      * @param chooseCardBean The data used to make the dialogue. Contains cards to select from.
      * @param <T>            The type of the selected card.
-     * @return The selected card.
+     * @return The future that receives the selected card.
      */
-    <T extends Card> T render(ChooseCardBean chooseCardBean);
+    <T extends Card> Future<T> render(ChooseCardBean chooseCardBean);
 
     /**
-     * Creates a dialogue and waits for the player to dismiss it.
+     * Creates a dialogue that waits to be dismissed, returning a future that indicates dismissal.
      *
      * @param pauseMessageBean The data used to make the dialogue.
+     * @return The future that indicates the dialogue has been dismissed. Contains <code>null</code>.
      */
-    void render(PauseMessageBean pauseMessageBean);
+    Future<?> render(PauseMessageBean pauseMessageBean);
 }
 
