@@ -1,6 +1,6 @@
 package net.swen225.hobbydetectives.ui.gui;
 
-import net.swen225.hobbydetectives.*;
+import net.swen225.hobbydetectives.Game;
 import net.swen225.hobbydetectives.board.Board;
 
 import javax.swing.*;
@@ -9,21 +9,14 @@ import java.awt.*;
 
 /**
  * GUI class for displaying the game board of Hobby Detectives.
- *
+ * <p>
  * This class is deprecated as the game interface must be text-based.
  */
 @Deprecated
 public class BoardPanel extends JFrame {
     private Game game; // board object
 
-    // Functional buttons
-    private JPanel controlPanel;
-    private JButton upButton;
-    private JButton downButton;
-    private JButton leftButton;
-    private JButton rightButton;
-    private JButton accuseButton;
-    private JButton endTurnButton;
+    private ControlPanel controlPanel;
 
     /**
      * Constructor for the BoardPanel class.
@@ -44,47 +37,10 @@ public class BoardPanel extends JFrame {
         gamePanel.setBounds(10, 10, 400, 400);
         add(gamePanel);
 
-        controlPanel = new JPanel();
-        controlPanel.setBounds(0, 420, 450, 100);
-
-        upButton = new JButton("Up");
-        downButton = new JButton("Down");
-        leftButton = new JButton("Left");
-        rightButton = new JButton("Right");
-        accuseButton = new JButton("Accuse");
-        endTurnButton = new JButton("End turn");
-
-        controlPanel.add(upButton);
-        controlPanel.add(downButton);
-        controlPanel.add(leftButton);
-        controlPanel.add(rightButton);
-        controlPanel.add(accuseButton);
-        controlPanel.add(endTurnButton);
-
-        upButton.addActionListener(e -> {
-            game.moveCurrentPlayer(Direction.NORTH);
-            repaint();
-        });
-        downButton.addActionListener(e -> {
-            game.moveCurrentPlayer(Direction.SOUTH);
-            repaint();
-        });
-        leftButton.addActionListener(e -> {
-            game.moveCurrentPlayer(Direction.WEST);
-            repaint();
-        });
-        rightButton.addActionListener(e -> {
-            game.moveCurrentPlayer(Direction.EAST);
-            repaint();
-        });
-        accuseButton.addActionListener(e -> {
-            // TODO
-        });
-        endTurnButton.addActionListener(e -> {
-            game.nextPlayer();
-        });
+        controlPanel = new ControlPanel();
 
         add(controlPanel);
+
     }
 
 
