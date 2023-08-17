@@ -1,4 +1,4 @@
-package net.swen225.hobbydetectives.gui;
+package net.swen225.hobbydetectives.ui.bean;
 
 /**
  * Stores state relating to what actions a player can do while moving.
