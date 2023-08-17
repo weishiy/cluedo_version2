@@ -1,6 +1,7 @@
-package net.swen225.hobbydetectives.board;
+package net.swen225.hobbydetectives.ui.gui;
 
 import net.swen225.hobbydetectives.*;
+import net.swen225.hobbydetectives.board.Board;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +13,7 @@ import java.awt.*;
  * This class is deprecated as the game interface must be text-based.
  */
 @Deprecated
-public class BoardGUI extends JFrame {
+public class BoardPanel extends JFrame {
     private Game game; // board object
 
     // Functional buttons
@@ -25,12 +26,12 @@ public class BoardGUI extends JFrame {
     private JButton endTurnButton;
 
     /**
-     * Constructor for the BoardGUI class.
+     * Constructor for the BoardPanel class.
      *
      * @param game The Game object which contains board, player, etc.
      */
 
-    public BoardGUI(Game game) {
+    public BoardPanel(Game game) {
         this.game = game;
 
         setTitle("Hobby Detectives Game");
