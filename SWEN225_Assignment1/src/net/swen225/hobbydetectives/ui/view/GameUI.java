@@ -11,6 +11,14 @@ import java.util.concurrent.Future;
  * Manages the view of the game.
  */
 public interface GameUI {
+
+    /**
+     * Subscribes the controller to this UI's input.
+     *
+     * @param controller The controller which manages/interprets the input.
+     */
+    void addController(Controller controller);
+
     /**
      * Renders the game board using the given <code>boardBean</code>.
      *
