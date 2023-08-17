@@ -6,6 +6,9 @@ import net.swen225.hobbydetectives.ui.view.MovementActions;
 
 import javax.swing.*;
 
+/**
+ * Establishes the controls used during movement, including guessing and accusation.
+ */
 public class ControlPanel extends JPanel {
 
     //Buttons displayed in this panel.
@@ -16,6 +19,9 @@ public class ControlPanel extends JPanel {
     private final JButton guessButton;
     private final JButton accuseButton;
 
+    /**
+     * Creates a new ControlPanel.
+     */
     public ControlPanel() {
         setBounds(0, 420, 450, 100);
 
@@ -34,6 +40,11 @@ public class ControlPanel extends JPanel {
         add(accuseButton);
     }
 
+    /**
+     * Associates the given controller with input this object receives.
+     *
+     * @param controller The controller to pass input to.
+     */
     public void addController(Controller controller) {
         upButton.addActionListener(e -> controller.process(MovementActions.UP));
         downButton.addActionListener(e -> controller.process(MovementActions.DOWN));
@@ -43,6 +54,11 @@ public class ControlPanel extends JPanel {
         accuseButton.addActionListener(e -> controller.process(MovementActions.ACCUSE));
     }
 
+    /**
+     * Renders this object, using the given bean to enable certain buttons.
+     *
+     * @param bean The bean telling which buttons/functionality are enabled.
+     */
     public void render(MovementBean bean) {
         //TODO: Make it so buttons render (appear) conditionally.
         upButton.setEnabled(bean.canMoveUp());
@@ -51,5 +67,7 @@ public class ControlPanel extends JPanel {
         rightButton.setEnabled(bean.canMoveRight());
 
         guessButton.setEnabled(bean.canGuess());
+
+        repaint();
     }
 }
