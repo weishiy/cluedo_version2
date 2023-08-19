@@ -11,5 +11,5 @@ public interface PauseMessageUI {
      * @param pauseMessageBean The data used to make the dialogue.
      * @return The future that indicates the dialogue has been dismissed. Contains <code>null</code>.
      */
-    Future<?> render(PauseMessageBean pauseMessageBean);
+    Future<Void> render(PauseMessageBean pauseMessageBean);
 }
