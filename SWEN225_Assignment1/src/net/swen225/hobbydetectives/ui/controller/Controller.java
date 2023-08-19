@@ -1,4 +1,4 @@
-package net.swen225.hobbydetectives.ui.view;
+package net.swen225.hobbydetectives.ui.controller;
 
 /**
  * Manages input sent from <code>GameUI</code>.

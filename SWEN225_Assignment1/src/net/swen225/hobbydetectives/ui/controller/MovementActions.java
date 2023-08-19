@@ -1,4 +1,4 @@
-package net.swen225.hobbydetectives.ui.view;
+package net.swen225.hobbydetectives.ui.controller;
 
 /**
  * The possible actions a player can make on the board.
