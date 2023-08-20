@@ -139,8 +139,7 @@ public class GuessAction implements Action {
    * Switches to <code>refuter</code>, and asks them to select a refute.
    */
   private Card askRefute(Player refuter, Set<Card> refutes) throws ExecutionException, InterruptedException {
-    renderGameWithSensitiveDataHidden();
-    promptMessageAndWait("Current refuter is: " + refuter.characterCard().toString());
+    changingPlayer("Current refuter is: " + refuter.characterCard().toString());
 
     game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(refuter).build());
     var chooseCardDialogue = new ChooseCardBean();
@@ -154,11 +153,10 @@ public class GuessAction implements Action {
    * Switches to <code>refuter</code>, and tells them the card they must refute with.
    */
   private void tellRefute(Player refuter, Card refuteWith) throws ExecutionException, InterruptedException {
-    renderGameWithSensitiveDataHidden();
-    promptMessageAndWait("Current refuter is: " + refuter.characterCard().toString());
+    changingPlayer("Current refuter is: " + refuter.characterCard().toString());
 
     game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(refuter).build());
-    promptMessageAndWait("You must refute with: " + refuteWith.toString());
+    promptAndWait("You must refute with: " + refuteWith.toString());
   }
 
   /**
@@ -180,12 +178,13 @@ public class GuessAction implements Action {
    * @param card what to refute with.
    */
   private void giveRefute(Card card) throws ExecutionException, InterruptedException {
-    renderGameWithSensitiveDataHidden();
-    promptMessageAndWait("Current player is: " + guesser.characterCard().toString());
+    changingPlayer("Current player is: " + guesser.characterCard().toString());
 
     game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(guesser).withStepsLeft(playerTurn.stepsLeft()).build());
-    promptMessageAndWait("Your guess was refuted: " + card.toString());
+    promptAndWait("Your guess was refuted: " + card.toString());
   }
+
+
 
   /**
    * Tells the guesser their guess wasn't refuted.
@@ -194,16 +193,17 @@ public class GuessAction implements Action {
    */
   private void giveUnrefuted(CardTriple cards) throws ExecutionException, InterruptedException {
     game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(guesser).withStepsLeft(playerTurn.stepsLeft()).build());
-    promptMessageAndWait("Your guess wasn't refuted: " + cards);
+    promptAndWait("Your guess wasn't refuted: " + cards);
   }
 
-  private void renderGameWithSensitiveDataHidden() {
+  private void changingPlayer(String message) throws InterruptedException, ExecutionException {
     game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
+    promptAndWait(message);
   }
 
-  private void promptMessageAndWait(String refuter) throws InterruptedException, ExecutionException {
+  private void promptAndWait(String message) throws InterruptedException, ExecutionException {
     var changingPlayerMessage = new PauseMessageBean();
-    changingPlayerMessage.messageText(refuter);
+    changingPlayerMessage.messageText(message);
     var changingPlayerFuture = ui.render(changingPlayerMessage);
     changingPlayerFuture.get();
   }
