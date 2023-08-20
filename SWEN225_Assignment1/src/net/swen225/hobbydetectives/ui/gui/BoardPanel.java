@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-final class BoardPanel extends JPanel {
+public final class BoardPanel extends JPanel {
     private final int CELL_SIZE = 16;
     private final int X_OFFSET = 10;
     private final int Y_OFFSET = 10;
@@ -26,9 +26,10 @@ final class BoardPanel extends JPanel {
         return player.characterCard().toString().substring(0, 1).toUpperCase();
     }
 
-    private void render(BoardBean bean) {
+    public void render(BoardBean bean) {
         this.bean = bean;
-
+        setSize(2 * X_OFFSET + tileToPixelX(bean.board().getWidth()),
+                2 * Y_OFFSET + tileToPixelY(bean.board().getHeight()));
         repaint();
     }
 
@@ -39,13 +40,14 @@ final class BoardPanel extends JPanel {
 
         //Draw empty space
         g.setColor(Color.MAGENTA);
-        g.fillRect(0, 0, bean.board().getWidth(), bean.board().getHeight());
+        g.fillRect(X_OFFSET, Y_OFFSET, tileToPixelX(bean.board().getWidth()), tileToPixelY(bean.board().getHeight()));
 
         drawEstates(g);
 
         drawGreyAreas(g);
 
         drawPlayers(g);
+
 
 //
 //        var board = game.getBoard();
@@ -102,8 +104,9 @@ final class BoardPanel extends JPanel {
         int left = tileToPixelX(estate.x1());
         int top = tileToPixelY(estate.y1());
 
-        int right = tileToPixelX(estate.x2());
-        int bottom = tileToPixelY(estate.y2());
+        //Coordinates are inclusive, add one
+        int right = tileToPixelX(estate.x2() + 1);
+        int bottom = tileToPixelY(estate.y2() + 1);
 
         int width = right - left;
         int height = bottom - top;
@@ -142,8 +145,9 @@ final class BoardPanel extends JPanel {
         for (Estate greyArea : bean.board().getGreyAreas()) {
             int left = tileToPixelX(greyArea.x1());
             int top = tileToPixelY(greyArea.y1());
-            int width = tileToPixelX(greyArea.x2() - left);
-            int height = tileToPixelY(greyArea.y2() - top);
+            //Coordinates are inclusive, add one to get right edge
+            int width = tileToPixelX(greyArea.x2() + 1) - left;
+            int height = tileToPixelY(greyArea.y2() + 1) - top;
             g.fillRect(left, top, width, height);
         }
     }
