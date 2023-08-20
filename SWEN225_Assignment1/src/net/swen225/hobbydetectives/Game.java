@@ -89,8 +89,7 @@ public class Game {
     private void startGame() throws ExecutionException, InterruptedException {
         while (!hasWinner() && hasActivePlayer()) {
             // Get one player out from the top of the queue
-            var nextPlayer = playerQueue.poll();
-            assert nextPlayer != null;
+            var nextPlayer = playerQueue.remove();
             // Only active player gets playing
             if (nextPlayer.active()) {
                 promptAndWaitForChangingPlayer(nextPlayer);
@@ -104,7 +103,7 @@ public class Game {
     }
 
     private void renderGameResult() throws InterruptedException, ExecutionException {
-        renderGameWithBoardOnly();
+        renderGameWithSensitiveDataHidden();
 
         var resultMessage = new PauseMessageBean();
         var winner = playerQueue.stream().filter(Player::isWinner).findFirst().orElse(null);
@@ -118,12 +117,12 @@ public class Game {
         future.get();
     }
 
-    private void renderGameWithBoardOnly() {
+    private void renderGameWithSensitiveDataHidden() {
         ui.render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
     }
 
     private void promptAndWaitForChangingPlayer(Player nextPlayer) throws InterruptedException, ExecutionException {
-        renderGameWithBoardOnly();
+        renderGameWithSensitiveDataHidden();
         var changingPlayerMessage = new PauseMessageBean();
         changingPlayerMessage.messageText("Next player is " + nextPlayer.characterCard().toString());
         var future = ui.render(changingPlayerMessage);

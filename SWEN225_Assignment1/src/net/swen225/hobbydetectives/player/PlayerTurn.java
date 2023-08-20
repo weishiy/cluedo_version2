@@ -55,6 +55,7 @@ public class PlayerTurn implements Controller {
 
             // wait for user input.
             game.ui().setController(this);
+            // future will be completed in process which is called back by UI in a different thread.
             future = new CompletableFuture<>();
             var action = future.get();
             future = null;
