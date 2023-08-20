@@ -1,8 +1,8 @@
 package net.swen225.hobbydetectives.ui.gui;
 
-import net.swen225.hobbydetectives.ui.bean.MovementBean;
-import net.swen225.hobbydetectives.ui.view.Controller;
-import net.swen225.hobbydetectives.ui.view.MovementActions;
+import net.swen225.hobbydetectives.ui.bean.BoardBean;
+import net.swen225.hobbydetectives.ui.controller.Controller;
+import net.swen225.hobbydetectives.ui.controller.MovementActions;
 
 import javax.swing.*;
 
@@ -59,7 +59,7 @@ public class ControlPanel extends JPanel {
      *
      * @param bean The bean telling which buttons/functionality are enabled.
      */
-    public void render(MovementBean bean) {
+    public void render(BoardBean bean) {
         //TODO: Make it so buttons render (appear) conditionally.
         upButton.setEnabled(bean.canMoveUp());
         downButton.setEnabled(bean.canMoveDown());
