@@ -1,68 +1,47 @@
 package net.swen225.hobbydetectives;
 
 import net.swen225.hobbydetectives.board.Board;
-import net.swen225.hobbydetectives.board.TextBasedBoardRenderer;
-import net.swen225.hobbydetectives.board.model.BoardRenderer;
 import net.swen225.hobbydetectives.card.CardTriple;
 import net.swen225.hobbydetectives.card.CharacterCard;
 import net.swen225.hobbydetectives.card.EstateCard;
-import net.swen225.hobbydetectives.card.model.Card;
 import net.swen225.hobbydetectives.card.WeaponCard;
+import net.swen225.hobbydetectives.card.model.Card;
 import net.swen225.hobbydetectives.player.Player;
 import net.swen225.hobbydetectives.player.PlayerTurn;
-import net.swen225.hobbydetectives.refutation.Prompt;
+import net.swen225.hobbydetectives.ui.bean.BoardBeanBuilder;
+import net.swen225.hobbydetectives.ui.bean.PauseMessageBean;
+import net.swen225.hobbydetectives.ui.view.ConsoleBasedGameUI;
+import net.swen225.hobbydetectives.ui.view.GameUI;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class Game {
 
     private final Board board; // game board
-    private final BoardRenderer boardRenderer;
-    private final Prompt prompt;
-    private CardTriple solution;
-    private final List<Player> playerList = new ArrayList<>();
-    private final List<Player> activePlayers = new ArrayList<>();
+    private final CardTriple solution;
     private final LinkedList<Player> playerQueue = new LinkedList<>();
 
-    private boolean running = false;
-
-    public Board board() {
-        return board;
-    }
-
-    /**
-     * Returns the current prompt.
-     *
-     * @return The current prompt.
-     */
-    public Prompt prompt() {
-        return prompt;
-    }
-
+    private final GameUI ui;
     /**
      * Main constructor, set up for game's need, but not finished yet.
      */
     public Game() {
-        playerList.add(new Player(CharacterCard.LUCILLA, 11, 1));
-        playerList.add(new Player(CharacterCard.BERT, 1, 9));
-        playerList.add(new Player(CharacterCard.MALINA, 9, 22));
-        playerList.add(new Player(CharacterCard.PERCY, 22, 14));
-        activePlayers.addAll(playerList);
-
-        generateSolution();
+        initPlayerQueue();
+        board = new Board(Set.copyOf(playerQueue));
+        solution = generateSolution();
         dispatchRemainingCards();
 
-        board = new Board();
-        
-        initPlayerQueue();
-        boardRenderer = new TextBasedBoardRenderer(board, Set.copyOf(playerList));
-        prompt = new Prompt();
-
-        startGame();
+        ui = new ConsoleBasedGameUI();
     }
 
     private void initPlayerQueue() {
+        var playerList = List.of(new Player(CharacterCard.LUCILLA, 11, 1),
+                new Player(CharacterCard.BERT, 1, 9),
+                new Player(CharacterCard.MALINA, 9, 22),
+                new Player(CharacterCard.PERCY, 22, 14));
+
         int randomPosition = (int) (Math.random() * 4);
         int listPosition = randomPosition;
         while (listPosition < playerList.size()) {
@@ -85,13 +64,13 @@ public class Game {
 
         var playerIndex = 0;
         for (var nextCard : remainingCards) {
-            playerList.get(playerIndex).addCard(nextCard);
+            playerQueue.get(playerIndex).addCard(nextCard);
             playerIndex++;
-            playerIndex = playerIndex % playerList.size();
+            playerIndex = playerIndex % playerQueue.size();
         }
     }
 
-    private void generateSolution() {
+    private CardTriple generateSolution() {
         var allCharacterCards = Arrays.stream(CharacterCard.values()).collect(Collectors.toCollection(ArrayList::new));
         var randomCharacterCardIndex = (new Random()).nextInt(CharacterCard.values().length);
         var randomCharacterCard = allCharacterCards.get(randomCharacterCardIndex);
@@ -104,47 +83,75 @@ public class Game {
         var randomWeaponCardIndex = (new Random()).nextInt(WeaponCard.values().length);
         var randomWeaponCard = allWeaponCards.get(randomWeaponCardIndex);
 
-        solution = new CardTriple(randomCharacterCard, randomEstateCard, randomWeaponCard);
+        return new CardTriple(randomCharacterCard, randomEstateCard, randomWeaponCard);
     }
 
-    private void startGame() {
-        running = true;
-        while (running && !activePlayers.isEmpty()) {
+    private void startGame() throws ExecutionException, InterruptedException {
+        while (!hasWinner() && hasActivePlayer()) {
             // Get one player out from the top of the queue
-            var currentPlayer = playerQueue.poll();
-            var turn = new PlayerTurn(this, currentPlayer, Collections.unmodifiableList(playerQueue));
-            turn.run();
-            // Add the currentPlayer to the end of the queue
-            playerQueue.offer(currentPlayer);
-            if (!currentPlayer.active()) {
-                activePlayers.remove(currentPlayer);
+            var nextPlayer = playerQueue.poll();
+            assert nextPlayer != null;
+            // Only active player gets playing
+            if (nextPlayer.active()) {
+                promptAndWaitForChangingPlayer(nextPlayer);
+                var turn = new PlayerTurn(this, nextPlayer, Collections.unmodifiableList(playerQueue));
+                turn.run();
             }
+            // Add the player to the end of the queue
+            playerQueue.offer(nextPlayer);
         }
+        renderGameResult();
+    }
 
-        var winner = playerList.stream().filter(Player::isWinner).findFirst().orElse(null);
+    private void renderGameResult() throws InterruptedException, ExecutionException {
+        renderGameWithBoardOnly();
+
+        var resultMessage = new PauseMessageBean();
+        var winner = playerQueue.stream().filter(Player::isWinner).findFirst().orElse(null);
         if (winner != null) {
-            System.out.println("Winner is: " + winner.characterCard().toString());
+            resultMessage.messageText("Winner is: " + winner.characterCard().toString());
         } else {
-            System.out.println("No winner");
-            System.out.println("Solution is: " + solution);
+            resultMessage.messageText("No winner. Solution is: " + solution);
         }
-        System.out.println("Game ended.");
+        var future = ui.render(resultMessage);
+        // Wait for user to confirm the result
+        future.get();
+    }
+
+    private void renderGameWithBoardOnly() {
+        ui.render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
+    }
+
+    private void promptAndWaitForChangingPlayer(Player nextPlayer) throws InterruptedException, ExecutionException {
+        renderGameWithBoardOnly();
+        var changingPlayerMessage = new PauseMessageBean();
+        changingPlayerMessage.messageText("Next player is " + nextPlayer.characterCard().toString());
+        var future = ui.render(changingPlayerMessage);
+        future.get();
+    }
+
+    private boolean hasWinner() {
+        return playerQueue.stream().anyMatch(Player::isWinner);
+    }
+
+    private boolean hasActivePlayer() {
+        return playerQueue.stream().anyMatch(Player::active);
     }
 
     public Player findPlayer(CharacterCard card) {
-        return playerList.stream().filter(p -> p.characterCard() == card).findFirst().orElse(null);
-    }
-
-    public BoardRenderer boardRenderer() {
-        return boardRenderer;
+        return playerQueue.stream().filter(p -> p.characterCard() == card).findFirst().orElse(null);
     }
 
     public CardTriple solution() {
         return solution;
     }
 
-    public void endGame() {
-        running = false;
+    public Board board() {
+        return board;
+    }
+
+    public GameUI ui() {
+        return ui;
     }
 
     /**
@@ -152,8 +159,9 @@ public class Game {
      *
      * @param args String - unused arguments
      */
-    public static void main(String[] args) {
-        new Game();
+    public static void main(String[] args) throws Exception {
+        var game = new Game();
+        game.startGame();
     }
 
 }

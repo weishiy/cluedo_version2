@@ -2,7 +2,9 @@ package net.swen225.hobbydetectives.board;
 
 
 import net.swen225.hobbydetectives.card.EstateCard;
+import net.swen225.hobbydetectives.player.Player;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,12 +17,13 @@ public class Board {
 
     private final Set<Estate> rooms = new HashSet<>();
     private final Set<Estate> greyAreas = new HashSet<>();
+    private final Set<Player> players = new HashSet<>();
 
     /***
      * Creates a new board for the game to operate on.
      *
      */
-    public Board() {
+    public Board(Set<Player> players) {
         // 5 rooms
         rooms.add(new Estate(2, 2, 6, 6, EstateCard.HAUNTED_HOUSE, Set.of(new Door(6, 3), new Door(5, 6))));
         rooms.add(new Estate(17, 2, 21, 6, EstateCard.MANIC_MANOR, Set.of(new Door(17, 5), new Door(20, 6))));
@@ -33,6 +36,8 @@ public class Board {
         greyAreas.add(new Estate(5, 11, 6, 12));
         greyAreas.add(new Estate(11, 17, 12, 18));
         greyAreas.add(new Estate(17, 11, 18, 12));
+
+        this.players.addAll(players);
     }
 
     public int getWidth() {
@@ -50,6 +55,8 @@ public class Board {
     public Set<Estate> getGreyAreas() {
         return Collections.unmodifiableSet(greyAreas);
     }
+
+    public Set<Player> players() { return Collections.unmodifiableSet(players); }
 
     public Estate getEstateAt(int x, int y) {
         return rooms.stream()

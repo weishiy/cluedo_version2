@@ -12,16 +12,6 @@ public class EndTurnAction implements Action {
     }
 
     @Override
-    public boolean accept(String userInput) {
-        return "E".equalsIgnoreCase(userInput);
-    }
-
-    @Override
-    public String description() {
-        return "E - End turn";
-    }
-
-    @Override
     public void perform() {
         turn.endTurn();
     }

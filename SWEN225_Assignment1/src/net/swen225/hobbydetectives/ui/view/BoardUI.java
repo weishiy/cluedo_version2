@@ -9,7 +9,7 @@ public interface BoardUI {
      *
      * @param controller The controller which manages/interprets the input.
      */
-    void addController(Controller controller);
+    void setController(Controller controller);
 
     /**
      * Renders the game board using the given <code>boardBean</code>.
