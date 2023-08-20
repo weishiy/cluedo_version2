@@ -6,6 +6,8 @@ import net.swen225.hobbydetectives.ui.controller.Controller;
 public interface BoardUI {
     /**
      * Subscribes the controller to this UI's input.
+     * <p>
+     * Only one controller can be subscribed at a time. If called with null, unsets the current controller.
      *
      * @param controller The controller which manages/interprets the input.
      */
