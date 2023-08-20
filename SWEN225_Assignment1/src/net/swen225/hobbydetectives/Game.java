@@ -92,7 +92,7 @@ public class Game {
             var nextPlayer = playerQueue.remove();
             // Only active player gets playing
             if (nextPlayer.active()) {
-                promptAndWaitForChangingPlayer(nextPlayer);
+                changingPlayer(nextPlayer);
                 var turn = new PlayerTurn(this, nextPlayer, Collections.unmodifiableList(playerQueue));
                 turn.run();
             }
@@ -121,7 +121,7 @@ public class Game {
         ui.render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
     }
 
-    private void promptAndWaitForChangingPlayer(Player nextPlayer) throws InterruptedException, ExecutionException {
+    private void changingPlayer(Player nextPlayer) throws InterruptedException, ExecutionException {
         renderGameWithSensitiveDataHidden();
         var changingPlayerMessage = new PauseMessageBean();
         changingPlayerMessage.messageText("Next player is " + nextPlayer.characterCard().toString());
