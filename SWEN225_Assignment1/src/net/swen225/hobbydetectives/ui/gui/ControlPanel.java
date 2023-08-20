@@ -5,6 +5,7 @@ import net.swen225.hobbydetectives.ui.controller.Controller;
 import net.swen225.hobbydetectives.ui.controller.MovementActions;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * Establishes the controls used during movement, including guessing and accusation.
@@ -23,19 +24,25 @@ public class ControlPanel extends JPanel {
      * Creates a new ControlPanel.
      */
     public ControlPanel() {
-        setBounds(0, 420, 450, 100);
+
+        JPanel movementContainer = new JPanel(new BorderLayout());
 
         upButton = new JButton("Up");
         downButton = new JButton("Down");
         leftButton = new JButton("Left");
         rightButton = new JButton("Right");
+
+        movementContainer.add(upButton, BorderLayout.NORTH);
+        movementContainer.add(downButton, BorderLayout.SOUTH);
+        movementContainer.add(leftButton, BorderLayout.WEST);
+        movementContainer.add(rightButton, BorderLayout.EAST);
+
+        add(movementContainer);
+
         accuseButton = new JButton("Accuse");
         guessButton = new JButton("Guess");
 
-        add(upButton);
-        add(downButton);
-        add(leftButton);
-        add(rightButton);
+
         add(guessButton);
         add(accuseButton);
     }
