@@ -24,11 +24,6 @@ final class BoardPanel extends JPanel {
         repaint();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        BoardBean bean = this.bean;
-        ...
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -36,10 +31,8 @@ final class BoardPanel extends JPanel {
         super.paintComponent(g);
 
         //Draw space
-        //Draw rooms
-        //Draw floors and walls
-        //Draw doors
-        //Draw room name
+
+        drawEstates(g);
 
         //Draw grey areas
 
@@ -123,6 +116,13 @@ final class BoardPanel extends JPanel {
         }
 
         //TODO: Draw Estate names
+    }
+
+    //Draws all estates
+    private void drawEstates(Graphics g) {
+        for (Estate estate : bean.board().getRooms()) {
+            drawEstate(g, estate);
+        }
     }
 
     //Returns the pixel location (top-left) of the given tile coordinate
