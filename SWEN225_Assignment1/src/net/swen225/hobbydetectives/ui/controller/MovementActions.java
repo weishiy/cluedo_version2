@@ -15,5 +15,9 @@ public enum MovementActions {
     /**
      * The player wants to make an accusation.
      */
-    ACCUSE
+    ACCUSE,
+    /**
+     * The player wants to end the current turn.
+     */
+    END_TURN
 }

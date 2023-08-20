@@ -3,107 +3,104 @@ package net.swen225.hobbydetectives.player;
 import net.swen225.hobbydetectives.Game;
 import net.swen225.hobbydetectives.actions.*;
 import net.swen225.hobbydetectives.actions.model.Action;
-import net.swen225.hobbydetectives.card.model.Card;
+import net.swen225.hobbydetectives.board.Board;
+import net.swen225.hobbydetectives.ui.bean.BoardBeanBuilder;
+import net.swen225.hobbydetectives.ui.controller.Controller;
+import net.swen225.hobbydetectives.ui.controller.MovementActions;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-public class PlayerTurn {
+public class PlayerTurn implements Controller {
     private final Game game;
+    private final Board board;
     private final Player currentPlayer;
     private final List<Player> nextPlayers = new ArrayList<>();
 
     private int stepsLeft;
     private boolean hasGuessed = false;
+    private Map<MovementActions, Action> allowedActions = new HashMap<>();
+
+    private volatile CompletableFuture<MovementActions> future;
 
     public PlayerTurn(Game game, Player currentPlayer, List<Player> nextPlayers) {
         this.game = game;
+        this.board = game.board();
         this.currentPlayer = currentPlayer;
         this.nextPlayers.addAll(nextPlayers);
+        this.stepsLeft = rollTwoDices();
     }
 
-    public void run() {
-        if (!currentPlayer.active()) {return;}
-        // move all these System.out.* to Prompt?
+    public void run() throws InterruptedException, ExecutionException {
+        while(stepsLeft > 0) {
+            calculateAllowedActions();
+            var boardBean = new BoardBeanBuilder()
+                    .withBoard(board)
+                    .withPlayers(board.players())
+                    .withCurrentPlayer(currentPlayer)
+                    .withVisible(true)
+                    .withStepsLeft(stepsLeft)
+                    .withCanMoveUp(allowedActions.containsKey(MovementActions.UP))
+                    .withCanMoveDown(allowedActions.containsKey(MovementActions.DOWN))
+                    .withCanMoveLeft(allowedActions.containsKey(MovementActions.LEFT))
+                    .withCanMoveRight(allowedActions.containsKey(MovementActions.RIGHT))
+                    .withCanGuess(allowedActions.containsKey(MovementActions.GUESS))
+                    .build();
+            game.ui().render(boardBean);
 
-        // Print 100 empty lines to clear terminal history
-        IntStream.range(0, 100).forEach(a -> System.out.println());
-        System.out.println("Next player is: " + currentPlayer.characterCard().toString());
-        System.out.println("Press Enter key to roll...");
+            // wait for user input.
+            game.ui().setController(this);
+            // future will be completed in process which is called back by UI in a different thread.
+            future = new CompletableFuture<>();
+            var action = future.get();
+            future = null;
+            game.ui().setController(null);
 
-        Scanner scan = new Scanner(System.in);
-        scan.nextLine();
-
-        // Print 100 empty lines to clear terminal history
-        IntStream.range(0, 100).forEach(a -> System.out.println());
-
-        stepsLeft = rollTwoDices();
-        while (stepsLeft > 0) {
-            game.boardRenderer().render();
-
-            System.out.println("You are: " + currentPlayer.characterCard().toString());
-            System.out.println("Your cards: ");
-            System.out.println("    " + currentPlayer.hand().stream().map(Card::toString).collect(Collectors.joining(", ")));
-
-            System.out.println("You've " + stepsLeft + " steps left. ");
-
-            var validInput = false;
-            while (!validInput) {
-                System.out.println("Choose any of below to continue: ");
-                var allowedActions = getAllowedActions();
-                allowedActions.forEach(a -> System.out.println("    " + a.description()));
-                var s = new Scanner(System.in);
-                var userInput = s.next();
-
-                var action = allowedActions.stream().filter(a -> a.accept(userInput)).findFirst().orElse(null);
-                if (action != null) {
-                    action.perform();
-                    validInput = true;
-                } else {
-                    System.out.println("Invalid input: " + userInput);
-                }
-            }
+            allowedActions.get(action).perform();
         }
     }
 
-    private List<Action> getAllowedActions() {
-        var allowedActions = new ArrayList<Action>();
+    private void calculateAllowedActions() {
+        allowedActions.clear();
 
-        if (game.board().canEnter(currentPlayer.x(), currentPlayer.y() - 1)) {
-            allowedActions.add(new MoveUpAction(this, currentPlayer) {
-            });
+        if (board.canEnter(currentPlayer.x(), currentPlayer.y() - 1)) {
+            allowedActions.put(MovementActions.UP, new MoveUpAction(this, currentPlayer));
         }
-        if (game.board().canEnter(currentPlayer.x() - 1, currentPlayer.y())) {
-            allowedActions.add(new MoveLeftAction(this, currentPlayer));
+        if (board.canEnter(currentPlayer.x() - 1, currentPlayer.y())) {
+            allowedActions.put(MovementActions.LEFT, new MoveLeftAction(this, currentPlayer));
         }
-        if (game.board().canEnter(currentPlayer.x(), currentPlayer.y() + 1)) {
-            allowedActions.add(new MoveDownAction(this, currentPlayer));
+        if (board.canEnter(currentPlayer.x(), currentPlayer.y() + 1)) {
+            allowedActions.put(MovementActions.DOWN, new MoveDownAction(this, currentPlayer));
         }
-        if (game.board().canEnter(currentPlayer.x() + 1, currentPlayer.y())) {
-            allowedActions.add(new MoveRightAction(this, currentPlayer));
+        if (board.canEnter(currentPlayer.x() + 1, currentPlayer.y())) {
+            allowedActions.put(MovementActions.RIGHT, new MoveRightAction(this, currentPlayer));
         }
-        if (game.board().getEstateAt(currentPlayer.x(), currentPlayer.y()) != null) {
-            if (!hasGuessed) {
-                hasGuessed = true;
-                allowedActions.add(new GuessAction(game, currentPlayer, nextPlayers));
-            }
-            allowedActions.add(new EndTurnAction(this));
+        if (board.getEstateAt(currentPlayer.x(), currentPlayer.y()) != null && !hasGuessed) {
+            allowedActions.put(MovementActions.GUESS, new GuessAction(this, game, currentPlayer, nextPlayers));
         }
-        allowedActions.add(new AccuseAction(game, this, currentPlayer));
-
-        return allowedActions;
+        allowedActions.put(MovementActions.ACCUSE, new AccuseAction(game, this, currentPlayer));
+        allowedActions.put(MovementActions.END_TURN, new EndTurnAction(this));
     }
 
     public void decreaseStepsLeft() {
         stepsLeft--;
     }
 
+    public void hasGuessed(boolean hasGuessed) {
+        this.hasGuessed = hasGuessed;
+    }
+
     public void endTurn() {
         stepsLeft = 0;
+    }
+
+    public int stepsLeft() {
+        return stepsLeft;
     }
 
     private int rollTwoDices() {
@@ -111,4 +108,10 @@ public class PlayerTurn {
         return (int) Math.ceil(Math.random() * 6) + (int) Math.ceil(Math.random() * 6);
     }
 
+    @Override
+    public void process(MovementActions action) {
+        if(future != null) {
+            future.complete(action);
+        }
+    }
 }

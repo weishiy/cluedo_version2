@@ -15,16 +15,6 @@ public class MoveRightAction implements Action {
     }
 
     @Override
-    public boolean accept(String userInput) {
-        return "R".equalsIgnoreCase(userInput);
-    }
-
-    @Override
-    public String description() {
-        return "R - Move right one tile";
-    }
-
-    @Override
     public void perform() {
         player.x(player.x() + 1);
         turn.decreaseStepsLeft();
