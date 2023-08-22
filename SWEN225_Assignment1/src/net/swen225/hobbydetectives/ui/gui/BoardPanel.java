@@ -1,5 +1,6 @@
 package net.swen225.hobbydetectives.ui.gui;
 
+import net.swen225.hobbydetectives.board.Board;
 import net.swen225.hobbydetectives.board.Door;
 import net.swen225.hobbydetectives.board.Estate;
 import net.swen225.hobbydetectives.player.Player;
@@ -12,9 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class BoardPanel extends JPanel {
-    private final int CELL_SIZE = 16;
-    private final int X_OFFSET = 10;
-    private final int Y_OFFSET = 10;
+
 
     /**
      * Contains the latest state of the board.
@@ -26,10 +25,30 @@ public final class BoardPanel extends JPanel {
         return player.characterCard().toString().substring(0, 1).toUpperCase();
     }
 
+    /**
+     * Returns dynamic cell length dependent on this panel's size and the size of the board.
+     *
+     * @param board     The board which generates the tiles.
+     * @param component The component which displays the tiles.
+     * @return The cell length.
+     */
+    private static int getCellLength(JComponent component, Board board) {
+
+        int widthInTiles = board.getWidth();
+        int widthInPixels = component.getWidth();
+        int widthRatio = Math.floorDiv(widthInPixels, widthInTiles);
+
+        int heightInTiles = board.getHeight();
+        int heightInPixels = component.getHeight();
+        int heightRatio = Math.floorDiv(heightInPixels, heightInTiles);
+
+        //Return the smallest of the two, so all cells fit even if one dimension doesn't.
+        return Math.min(widthRatio, heightRatio);
+    }
+
     public void render(BoardBean bean) {
         this.bean = bean;
-        setMinimumSize(new Dimension(2 * X_OFFSET + tileToPixelX(bean.board().getWidth()),
-                2 * Y_OFFSET + tileToPixelY(bean.board().getHeight())));
+
         repaint();
     }
 
@@ -38,50 +57,18 @@ public final class BoardPanel extends JPanel {
         // Calling to clear the artifacts!
         super.paintComponent(g);
 
+        int cellLength = getCellLength(this, bean.board());
+
         //Draw empty space
         g.setColor(Color.MAGENTA);
-        g.fillRect(X_OFFSET, Y_OFFSET, tileToPixelX(bean.board().getWidth()), tileToPixelY(bean.board().getHeight()));
+        g.fillRect(0, 0, bean.board().getWidth() * cellLength, bean.board().getHeight() * cellLength);
 
-        drawEstates(g);
+        drawEstates(g, cellLength);
 
-        drawGreyAreas(g);
+        drawGreyAreas(g, cellLength);
 
-        drawPlayers(g);
+        drawPlayers(g, cellLength);
 
-
-//
-//        var board = game.getBoard();
-//
-//        var boardSize = Board.SIZE;
-//        var gridSize = boardSize * CELL_SIZE;
-//        var outerBorderSize = 4; // Adjust this value to set the thickness of the outer border
-//
-//        // Draw tiles
-//        for (var i = 0; i < boardSize; i++) {
-//            for (var j = 0; j < boardSize; j++) {
-//                var x = tileToPixelX(j);
-//                var y = tileToPixelY(i);
-//                var tile = board.inspectTile(i, j);
-//                g.setColor(tile.tileType().color()); // set the color depends on tile
-//                g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-//            }
-//        }
-//
-//        board.getRoomNamesAndPositions().forEach((roomName, position) -> {
-//            g.setColor(Color.black);
-//            g.drawString(roomName, tileToPixelX(position.getValue()), tileToPixelY(position.getKey()));
-//        });
-//
-//        // Draw players
-//        game.getPlayerList().forEach(p -> {
-//            g.setColor(p.getColor());
-//            g.fillOval(tileToPixelX(p.getCurrentTileLocation().y()), tileToPixelY(p.getCurrentTileLocation().x()),
-//                    CELL_SIZE, CELL_SIZE);
-//            g.setColor(Color.black);
-//            g.drawString(p.getName(), tileToPixelX(p.getCurrentTileLocation().y()),
-//                    tileToPixelY(p.getCurrentTileLocation().x()));
-//        });
-//
 //        // Draw grid
 //        for (var i = 0; i < boardSize; i++) {
 //            for (var j = 0; j < boardSize; j++) {
@@ -99,14 +86,14 @@ public final class BoardPanel extends JPanel {
 //        g.drawRect(X_OFFSET, Y_OFFSET, gridSize, gridSize);
     }
 
-    private void drawEstate(Graphics g, Estate estate) {
+    private void drawEstate(Graphics g, int cellLength, Estate estate) {
         //Draw floor and walls
-        int left = tileToPixelX(estate.x1());
-        int top = tileToPixelY(estate.y1());
+        int left = estate.x1() * cellLength;
+        int top = estate.y1() * cellLength;
 
-        //Coordinates are inclusive, add one
-        int right = tileToPixelX(estate.x2() + 1);
-        int bottom = tileToPixelY(estate.y2() + 1);
+        //Coordinates are inclusive, add one to get far edge.
+        int right = (estate.x2() + 1) * cellLength;
+        int bottom = (estate.y2() + 1) * cellLength;
 
         int width = right - left;
         int height = bottom - top;
@@ -117,42 +104,46 @@ public final class BoardPanel extends JPanel {
 
         //Walls
         g.setColor(Color.GRAY);
-        g.fillRect(left, top, width, CELL_SIZE); //top wall
-        g.fillRect(left, bottom - CELL_SIZE, width, CELL_SIZE); //bottom wall
-        g.fillRect(left, top, CELL_SIZE, height); //left wall
-        g.fillRect(right - CELL_SIZE, top, CELL_SIZE, height); //right wall
+        g.fillRect(left, top, width, cellLength); //top wall
+        g.fillRect(left, bottom - cellLength, width, cellLength); //bottom wall
+        g.fillRect(left, top, cellLength, height); //left wall
+        g.fillRect(right - cellLength, top, cellLength, height); //right wall
 
         //Draw doors
         g.setColor(Color.YELLOW);
         for (Door door : estate.doors()) {
-            int leftDoor = tileToPixelX(door.x());
-            int topDoor = tileToPixelY(door.y());
-            g.fillRect(leftDoor, topDoor, CELL_SIZE, CELL_SIZE);
+            int leftDoor = door.x() * cellLength;
+            int topDoor = door.y() * cellLength;
+            g.fillRect(leftDoor, topDoor, cellLength, cellLength);
         }
 
         //TODO: Draw Estate names
     }
 
     //Draws all estates
-    private void drawEstates(Graphics g) {
+    private void drawEstates(Graphics g, int cellLength) {
         for (Estate estate : bean.board().getRooms()) {
-            drawEstate(g, estate);
+            drawEstate(g, cellLength, estate);
         }
     }
 
-    private void drawGreyAreas(Graphics g) {
+    private void drawGreyAreas(Graphics g, int cellLength) {
         g.setColor(Color.GRAY);
         for (Estate greyArea : bean.board().getGreyAreas()) {
-            int left = tileToPixelX(greyArea.x1());
-            int top = tileToPixelY(greyArea.y1());
-            //Coordinates are inclusive, add one to get right edge
-            int width = tileToPixelX(greyArea.x2() + 1) - left;
-            int height = tileToPixelY(greyArea.y2() + 1) - top;
+            int left = greyArea.x1() * cellLength;
+            int top = greyArea.y1() * cellLength;
+            //Coordinates are inclusive, add one to get far edge.
+            int right = (greyArea.x2() + 1) * cellLength;
+            int bottom = (greyArea.y2() + 1) * cellLength;
+
+            int width = right - left;
+            int height = bottom - top;
+
             g.fillRect(left, top, width, height);
         }
     }
 
-    private void drawPlayers(Graphics g) {
+    private void drawPlayers(Graphics g, int cellLength) {
         Set<Player> players = bean.players();
         //Each Point corresponds to the first letter of the players in that spot.
         //Multiple players may be in the same spot if, for example, they're in the same estate.
@@ -162,46 +153,16 @@ public final class BoardPanel extends JPanel {
         //FIXME:Players inside estates are drawn inside the doorways (Jeremy)
 
         for (var entry : pointToLetters.entrySet()) {
-            int left = entry.getKey().x;
-            int top = entry.getKey().y;
+            int left = entry.getKey().x * cellLength;
+            int top = entry.getKey().y * cellLength;
             String letters = entry.getValue();
             //TODO: Modify font so that characters are correct size (Jeremy)
             //Ensures characters are drawn inside cell
-            Graphics clippedGraphic = g.create(left, top, CELL_SIZE, CELL_SIZE);
+            Graphics clippedGraphic = g.create(left, top, cellLength, cellLength);
             clippedGraphic.setColor(Color.BLACK);
-            clippedGraphic.drawString(letters, 0, CELL_SIZE);
+            clippedGraphic.drawString(letters, 0, cellLength);
         }
 
-    }
-
-    //Returns the pixel location (top-left) of the given tile coordinate
-    private int tileToPixelX(int j) {
-        return j * CELL_SIZE + X_OFFSET;
-    }
-
-    private int tileToPixelY(int i) {
-        return i * CELL_SIZE + Y_OFFSET;
-    }
-
-    /**
-     * Returns dynamic cell size dependent on this panel's size.
-     *
-     * @return The cell size
-     */
-    private int getCellSize() {
-        assert bean != null : "bean must be first defined.";
-        assert bean.board() != null : "bean.board() must be defined.";
-
-        int widthInTiles = bean.board().getWidth();
-        int widthInPixels = getWidth();
-        int widthRatio = Math.floorDiv(widthInPixels, widthInTiles);
-
-        int heightInTiles = bean.board().getHeight();
-        int heightInPixels = getHeight();
-        int heightRatio = Math.floorDiv(heightInPixels, heightInTiles);
-
-        //Return the smallest of the two, so all cells fit even if one dimension doesn't.
-        return Math.min(widthRatio, heightRatio);
     }
 
 }
