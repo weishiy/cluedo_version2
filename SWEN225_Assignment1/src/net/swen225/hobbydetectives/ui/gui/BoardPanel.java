@@ -28,8 +28,8 @@ public final class BoardPanel extends JPanel {
 
     public void render(BoardBean bean) {
         this.bean = bean;
-        setSize(2 * X_OFFSET + tileToPixelX(bean.board().getWidth()),
-                2 * Y_OFFSET + tileToPixelY(bean.board().getHeight()));
+        setMinimumSize(new Dimension(2 * X_OFFSET + tileToPixelX(bean.board().getWidth()),
+                2 * Y_OFFSET + tileToPixelY(bean.board().getHeight())));
         repaint();
     }
 
@@ -182,4 +182,26 @@ public final class BoardPanel extends JPanel {
     private int tileToPixelY(int i) {
         return i * CELL_SIZE + Y_OFFSET;
     }
+
+    /**
+     * Returns dynamic cell size dependent on this panel's size.
+     *
+     * @return The cell size
+     */
+    private int getCellSize() {
+        assert bean != null : "bean must be first defined.";
+        assert bean.board() != null : "bean.board() must be defined.";
+
+        int widthInTiles = bean.board().getWidth();
+        int widthInPixels = getWidth();
+        int widthRatio = Math.floorDiv(widthInPixels, widthInTiles);
+
+        int heightInTiles = bean.board().getHeight();
+        int heightInPixels = getHeight();
+        int heightRatio = Math.floorDiv(heightInPixels, heightInTiles);
+
+        //Return the smallest of the two, so all cells fit even if one dimension doesn't.
+        return Math.min(widthRatio, heightRatio);
+    }
+
 }
