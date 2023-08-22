@@ -82,12 +82,15 @@ public class ControlPanel extends JPanel {
     }
 
     private static class MovementButton extends JButton {
-        public static final int MINIMUM_LENGTH = 20;
+        public static final int MINIMUM_LENGTH = 50;
 
         public MovementButton(String text) {
             super(text);
             setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
             setMinimumSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
+
+            //Have each button stretch to fill space.
+            setPreferredSize(null);
         }
     }
 
@@ -96,7 +99,10 @@ public class ControlPanel extends JPanel {
             super(text);
 
             setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            setMinimumSize(new Dimension(100, 50));
 
+            //Have each button stretch to fill space.
+            setPreferredSize(null);
             setAlignmentX(CENTER_ALIGNMENT);
         }
     }
@@ -105,17 +111,31 @@ public class ControlPanel extends JPanel {
      * Contains buttons for controlling movement
      */
     private class MovementContainer extends JPanel {
-        public static final int MINIMUM_LENGTH = MovementButton.MINIMUM_LENGTH * 2;
+        public static final int MINIMUM_LENGTH = MovementButton.MINIMUM_LENGTH * 3;
 
         public MovementContainer() {
-            super(new BorderLayout(0, 0));
+            super(new GridBagLayout());
             setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
             setMinimumSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
 
-            add(upButton, BorderLayout.NORTH);
-            add(downButton, BorderLayout.SOUTH);
-            add(leftButton, BorderLayout.WEST);
-            add(rightButton, BorderLayout.EAST);
+            add(upButton, constraints(1, 0));
+            add(downButton, constraints(1, 2));
+            add(leftButton, constraints(0, 1));
+            add(rightButton, constraints(2, 1));
+        }
+
+        private static GridBagConstraints constraints(int gridx, int gridy) {
+            final float weight = 1.0f / 3.0f;
+
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.weightx = weight;
+            constraints.weighty = weight;
+            constraints.fill = GridBagConstraints.BOTH;
+
+            constraints.gridx = gridx;
+            constraints.gridy = gridy;
+
+            return constraints;
         }
     }
 
