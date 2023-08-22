@@ -20,6 +20,10 @@ public final class BoardPanel extends JPanel {
      */
     private BoardBean bean = null;
 
+    public BoardPanel() {
+        setMinimumSize(new Dimension(150, 150));
+    }
+
     //Used to write the Positions
     private static String firstLetterInName(Player player) {
         return player.characterCard().toString().substring(0, 1).toUpperCase();
@@ -33,7 +37,6 @@ public final class BoardPanel extends JPanel {
      * @return The cell length.
      */
     private static int getCellLength(JComponent component, Board board) {
-
         int widthInTiles = board.getWidth();
         int widthInPixels = component.getWidth();
         int widthRatio = Math.floorDiv(widthInPixels, widthInTiles);
@@ -56,6 +59,11 @@ public final class BoardPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         // Calling to clear the artifacts!
         super.paintComponent(g);
+
+        //requires to have non-null bean to draw board.
+        if (bean == null || bean.board() == null) {
+            return;
+        }
 
         int cellLength = getCellLength(this, bean.board());
 

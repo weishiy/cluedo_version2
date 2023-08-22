@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.util.Set;
 
 public class DisplayBoardPanel {
-    private static BoardBean bean = new BoardBean();
+    private static final BoardBean bean = new BoardBean();
 
     static {
         bean.board(new Board());
@@ -36,7 +36,7 @@ public class DisplayBoardPanel {
             boardPanel.render(bean);
 
             //Display the window.
-            frame.setMinimumSize(boardPanel.getSize());
+            frame.setMinimumSize(boardPanel.getMinimumSize());
             frame.setVisible(true);
         });
     }

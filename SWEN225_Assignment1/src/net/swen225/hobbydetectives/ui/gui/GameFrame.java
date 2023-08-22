@@ -1,14 +1,19 @@
 package net.swen225.hobbydetectives.ui.gui;
 
+import net.swen225.hobbydetectives.ui.bean.BoardBean;
+import net.swen225.hobbydetectives.ui.controller.Controller;
+import net.swen225.hobbydetectives.ui.view.BoardUI;
+
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * GUI class for displaying the game board of Hobby Detectives.
  */
-public class GameFrame extends JFrame {
+public class GameFrame extends JFrame implements BoardUI {
 
-    private final ControlPanel controlPanel;
-    private final BoardPanel boardPanel;
+    private final ControlPanel controlPanel = new ControlPanel();
+    private final BoardPanel boardPanel = new BoardPanel();
 
     /**
      * Constructor for the GameFrame class.
@@ -17,23 +22,36 @@ public class GameFrame extends JFrame {
     public GameFrame() {
 
         setTitle("Hobby Detectives Game");
-        setSize(800, 800);
+        setMinimumSize(new Dimension(
+                //Minimum width can contain the largest of the components' minimum width.
+                Math.max(boardPanel.getMinimumSize().width, controlPanel.getMinimumSize().width),
+                //Minimum height can contain sum of components' minimum heights.
+                boardPanel.getMinimumSize().height + controlPanel.getMinimumSize().height));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(null);
 
-        var gamePanel = new BoardPanel();
-        gamePanel.setBounds(10, 10, 400, 400);
-        add(gamePanel);
+        //This JFrame is just wrapper over content pane, so we pass content pane to BoxLayout.
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
 
-        controlPanel = new ControlPanel();
+        boardPanel.setPreferredSize(new Dimension(1000, 1000));
+        boardPanel.setAlignmentX(CENTER_ALIGNMENT);
+        add(boardPanel);
+
+        add(Box.createVerticalStrut(10));
 
         add(controlPanel);
 
-        boardPanel = new BoardPanel();
-
-        add(boardPanel);
+        setVisible(true);
     }
 
 
+    @Override
+    public void addController(Controller controller) {
+        //TODO: stub
+    }
+
+    @Override
+    public void render(BoardBean boardBean) {
+        controlPanel.render(boardBean);
+        boardPanel.render(boardBean);
+    }
 }
