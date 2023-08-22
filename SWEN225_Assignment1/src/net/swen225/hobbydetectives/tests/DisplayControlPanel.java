@@ -34,7 +34,7 @@ public class DisplayControlPanel {
             controlPanel.render(bean);
 
             frame.setContentPane(controlPanel);
-            frame.setMinimumSize(controlPanel.getSize());
+            frame.pack();
             frame.setVisible(true);
         });
     }

@@ -20,31 +20,34 @@ public class ControlPanel extends JPanel {
     private final JButton guessButton;
     private final JButton accuseButton;
 
+    private final JButton endTurnButton;
+
     /**
      * Creates a new ControlPanel.
      */
     public ControlPanel() {
+        super();
+        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-        JPanel movementContainer = new JPanel(new BorderLayout());
-
-        upButton = new JButton("Up");
-        downButton = new JButton("Down");
-        leftButton = new JButton("Left");
-        rightButton = new JButton("Right");
-
-        movementContainer.add(upButton, BorderLayout.NORTH);
-        movementContainer.add(downButton, BorderLayout.SOUTH);
-        movementContainer.add(leftButton, BorderLayout.WEST);
-        movementContainer.add(rightButton, BorderLayout.EAST);
-
-        add(movementContainer);
-
-        accuseButton = new JButton("Accuse");
-        guessButton = new JButton("Guess");
+        upButton = new MovementButton("Up");
+        downButton = new MovementButton("Down");
+        leftButton = new MovementButton("Left");
+        rightButton = new MovementButton("Right");
 
 
-        add(guessButton);
-        add(accuseButton);
+        accuseButton = new OtherActionButton("Accuse");
+        guessButton = new OtherActionButton("Guess");
+        endTurnButton = new OtherActionButton("End Turn");
+
+        add(new MovementContainer());
+
+        //Add filler between elements
+        Dimension minimum = new Dimension(5, getMinimumSize().height);
+        Dimension preferred = new Dimension(5, getPreferredSize().height);
+        Dimension maximum = new Dimension(Integer.MAX_VALUE, getMaximumSize().height);
+        add(new Box.Filler(minimum, preferred, maximum));
+
+        add(new OtherActionsContainer());
     }
 
     /**
@@ -76,5 +79,55 @@ public class ControlPanel extends JPanel {
         guessButton.setEnabled(bean.canGuess());
 
         repaint();
+    }
+
+    private static class MovementButton extends JButton {
+        public static final int MINIMUM_LENGTH = 20;
+
+        public MovementButton(String text) {
+            super(text);
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            setMinimumSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
+        }
+    }
+
+    private static class OtherActionButton extends JButton {
+        public OtherActionButton(String text) {
+            super(text);
+
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+            setAlignmentX(CENTER_ALIGNMENT);
+        }
+    }
+
+    /**
+     * Contains buttons for controlling movement
+     */
+    private class MovementContainer extends JPanel {
+        public static final int MINIMUM_LENGTH = MovementButton.MINIMUM_LENGTH * 2;
+
+        public MovementContainer() {
+            super(new BorderLayout(0, 0));
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            setMinimumSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
+
+            add(upButton, BorderLayout.NORTH);
+            add(downButton, BorderLayout.SOUTH);
+            add(leftButton, BorderLayout.WEST);
+            add(rightButton, BorderLayout.EAST);
+        }
+    }
+
+    private class OtherActionsContainer extends JPanel {
+        public OtherActionsContainer() {
+            //Can't refer to `this` in super, thus use setLayout.
+            super();
+            setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
+            add(guessButton);
+            add(accuseButton);
+            add(endTurnButton);
+        }
     }
 }
