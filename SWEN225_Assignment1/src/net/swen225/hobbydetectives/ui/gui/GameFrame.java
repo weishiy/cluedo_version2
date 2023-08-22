@@ -1,29 +1,20 @@
 package net.swen225.hobbydetectives.ui.gui;
 
-import net.swen225.hobbydetectives.Game;
-
 import javax.swing.*;
-
 
 /**
  * GUI class for displaying the game board of Hobby Detectives.
- * <p>
- * This class is deprecated as the game interface must be text-based.
  */
-@Deprecated
-public class GameGUI extends JFrame {
-    private Game game; // board object
+public class GameFrame extends JFrame {
 
-    private ControlPanel controlPanel;
+    private final ControlPanel controlPanel;
+    private final BoardPanel boardPanel;
 
     /**
-     * Constructor for the GameGUI class.
-     *
-     * @param game The Game object which contains board, player, etc.
+     * Constructor for the GameFrame class.
      */
 
-    public GameGUI(Game game) {
-        this.game = game;
+    public GameFrame() {
 
         setTitle("Hobby Detectives Game");
         setSize(800, 800);
@@ -31,7 +22,7 @@ public class GameGUI extends JFrame {
         setLocationRelativeTo(null);
         setLayout(null);
 
-        var gamePanel = new BoardPanel(game);
+        var gamePanel = new BoardPanel();
         gamePanel.setBounds(10, 10, 400, 400);
         add(gamePanel);
 
@@ -39,6 +30,9 @@ public class GameGUI extends JFrame {
 
         add(controlPanel);
 
+        boardPanel = new BoardPanel();
+
+        add(boardPanel);
     }
 
 
