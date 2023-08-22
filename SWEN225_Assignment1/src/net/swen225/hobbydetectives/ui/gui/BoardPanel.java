@@ -67,15 +67,26 @@ public final class BoardPanel extends JPanel {
 
         int cellLength = getCellLength(this, bean.board());
 
+        //Clip the original graphics to a centered square.
+        int length = Math.min(getWidth(), getHeight());
+
+        int centerX = getWidth() / 2;
+        int centerY = getHeight() / 2;
+
+        int left = centerX - length / 2;
+        int top = centerY - length / 2;
+
+        Graphics squareGraphic = g.create(left, top, length, length);
+
         //Draw empty space
-        g.setColor(Color.MAGENTA);
-        g.fillRect(0, 0, bean.board().getWidth() * cellLength, bean.board().getHeight() * cellLength);
+        squareGraphic.setColor(Color.MAGENTA);
+        squareGraphic.fillRect(0, 0, length, length);
 
-        drawEstates(g, cellLength);
+        drawEstates(squareGraphic, cellLength);
 
-        drawGreyAreas(g, cellLength);
+        drawGreyAreas(squareGraphic, cellLength);
 
-        drawPlayers(g, cellLength);
+        drawPlayers(squareGraphic, cellLength);
 
 //        // Draw grid
 //        for (var i = 0; i < boardSize; i++) {
