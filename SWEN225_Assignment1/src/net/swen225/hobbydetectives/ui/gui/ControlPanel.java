@@ -19,8 +19,14 @@ public class ControlPanel extends JPanel {
     private final JButton rightButton;
     private final JButton guessButton;
     private final JButton accuseButton;
-
     private final JButton endTurnButton;
+
+    private final JLabel stepsLeftLabel = new JLabel("Error: not set");
+
+    /**
+     * The current player's hand
+     */
+    private final JLabel cardsLabel = new JLabel("Error: not set");
 
     /**
      * Creates a new ControlPanel.
@@ -40,6 +46,8 @@ public class ControlPanel extends JPanel {
         endTurnButton = new OtherActionButton("End Turn");
 
         add(new MovementContainer());
+
+        add(new TextContainer());
 
         //Add filler between elements
         Dimension minimum = new Dimension(5, getMinimumSize().height);
@@ -77,6 +85,14 @@ public class ControlPanel extends JPanel {
         rightButton.setEnabled(bean.canMoveRight());
 
         guessButton.setEnabled(bean.canGuess());
+
+        stepsLeftLabel.setText("Steps left: %d".formatted(bean.stepsLeft()));
+        if (bean.currentPlayer() != null) {
+            cardsLabel.setVisible(true);
+            cardsLabel.setText("Your cards: %s".formatted(bean.currentPlayer().hand().toString()));
+        } else {
+            cardsLabel.setVisible(false);
+        }
 
         repaint();
     }
@@ -136,6 +152,20 @@ public class ControlPanel extends JPanel {
             constraints.gridy = gridy;
 
             return constraints;
+        }
+    }
+
+    private class TextContainer extends JPanel {
+        public TextContainer() {
+            super();
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+//            setAlignmentY(TOP_ALIGNMENT);
+
+            add(stepsLeftLabel);
+            add(Box.createRigidArea(new Dimension(0, 10)));
+            add(cardsLabel);
+            add(Box.createVerticalGlue());
         }
     }
 
