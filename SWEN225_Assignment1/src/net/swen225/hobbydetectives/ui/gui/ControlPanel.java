@@ -6,6 +6,8 @@ import net.swen225.hobbydetectives.ui.controller.MovementActions;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Establishes the controls used during movement, including guessing and accusation.
@@ -13,22 +15,29 @@ import java.awt.*;
 public class ControlPanel extends JPanel {
 
     //Buttons displayed in this panel.
-    private final JButton upButton;
-    private final JButton downButton;
-    private final JButton leftButton;
-    private final JButton rightButton;
-    private final JButton guessButton;
-    private final JButton accuseButton;
-    private final JButton endTurnButton;
+    //Movement buttons
+    private final JButton upButton = new MovementButton("Up");
+    private final JButton downButton = new MovementButton("Down");
+    private final JButton leftButton = new MovementButton("Left");
+    private final JButton rightButton = new MovementButton("Right");
 
+    //Other buttons
+    private final JButton guessButton = new OtherActionButton("Guess");
+    private final JButton accuseButton = new OtherActionButton("Accuse");
+    private final JButton endTurnButton = new OtherActionButton("End Turn");
+
+    //Text labels
     private final JLabel stepsLeftLabel = new JLabel("Error: not set");
-
     private final JLabel playerNameLabel = new JLabel("Error: not set");
-
     /**
      * The current player's hand
      */
     private final JLabel cardsLabel = new JLabel("Error: not set");
+
+    /**
+     * Controller to pass-back input to.
+     */
+    private Controller controller = null;
 
     /**
      * Creates a new ControlPanel.
@@ -37,19 +46,11 @@ public class ControlPanel extends JPanel {
         super();
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-        upButton = new MovementButton("Up");
-        downButton = new MovementButton("Down");
-        leftButton = new MovementButton("Left");
-        rightButton = new MovementButton("Right");
+        initialiseListeners();
 
+        add(new MovementContainer()); //Contains direction buttons
 
-        accuseButton = new OtherActionButton("Accuse");
-        guessButton = new OtherActionButton("Guess");
-        endTurnButton = new OtherActionButton("End Turn");
-
-        add(new MovementContainer());
-
-        add(new TextContainer());
+        add(new TextContainer()); //Contains text labels
 
         //Add filler between elements
         Dimension minimum = new Dimension(5, getMinimumSize().height);
@@ -57,21 +58,43 @@ public class ControlPanel extends JPanel {
         Dimension maximum = new Dimension(Integer.MAX_VALUE, getMaximumSize().height);
         add(new Box.Filler(minimum, preferred, maximum));
 
-        add(new OtherActionsContainer());
+        add(new OtherActionsContainer()); //Miscellaneous buttons
     }
+
+    private void initialiseListeners() {
+        class Listener implements ActionListener {
+            private final MovementActions action;
+
+            public Listener(MovementActions action) {
+                this.action = action;
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (controller != null) {
+                    controller.process(action);
+                }
+            }
+        }
+
+        upButton.addActionListener(new Listener(MovementActions.UP));
+        downButton.addActionListener(new Listener(MovementActions.DOWN));
+        leftButton.addActionListener(new Listener(MovementActions.LEFT));
+        rightButton.addActionListener(new Listener(MovementActions.RIGHT));
+
+        accuseButton.addActionListener(new Listener(MovementActions.ACCUSE));
+        guessButton.addActionListener(new Listener(MovementActions.GUESS));
+        endTurnButton.addActionListener(new Listener(MovementActions.END_TURN));
+    }
+
 
     /**
      * Associates the given controller with input this object receives.
      *
      * @param controller The controller to pass input to.
      */
-    public void addController(Controller controller) {
-        upButton.addActionListener(e -> controller.process(MovementActions.UP));
-        downButton.addActionListener(e -> controller.process(MovementActions.DOWN));
-        leftButton.addActionListener(e -> controller.process(MovementActions.LEFT));
-        rightButton.addActionListener(e -> controller.process(MovementActions.RIGHT));
-        guessButton.addActionListener(e -> controller.process(MovementActions.GUESS));
-        accuseButton.addActionListener(e -> controller.process(MovementActions.ACCUSE));
+    public void setController(Controller controller) {
+        this.controller = controller;
     }
 
     /**

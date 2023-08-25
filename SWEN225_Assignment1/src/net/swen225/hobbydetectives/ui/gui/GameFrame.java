@@ -48,7 +48,7 @@ public class GameFrame extends JFrame implements BoardUI {
 
     @Override
     public void setController(Controller controller) {
-        //TODO: stub
+        controlPanel.setController(controller);
     }
 
     @Override
