@@ -32,7 +32,7 @@ public class GameFrame extends JFrame implements BoardUI {
         //This JFrame is just wrapper over content pane, so we pass content pane to BoxLayout.
         setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
 
-        boardPanel.setPreferredSize(new Dimension(1000, 1000));
+        boardPanel.setPreferredSize(new Dimension(5000, 5000));
         boardPanel.setAlignmentX(CENTER_ALIGNMENT);
         add(boardPanel);
 
@@ -40,6 +40,8 @@ public class GameFrame extends JFrame implements BoardUI {
 
         add(controlPanel);
 
+        //Sets size to fill the window.
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setVisible(true);
     }
 
