@@ -23,6 +23,8 @@ public class ControlPanel extends JPanel {
 
     private final JLabel stepsLeftLabel = new JLabel("Error: not set");
 
+    private final JLabel playerNameLabel = new JLabel("Error: not set");
+
     /**
      * The current player's hand
      */
@@ -90,8 +92,12 @@ public class ControlPanel extends JPanel {
         if (bean.currentPlayer() != null) {
             cardsLabel.setVisible(true);
             cardsLabel.setText("Your cards: %s".formatted(bean.currentPlayer().hand().toString()));
+
+            playerNameLabel.setVisible(true);
+            playerNameLabel.setText(bean.currentPlayer().characterCard().name());
         } else {
             cardsLabel.setVisible(false);
+            playerNameLabel.setVisible(false);
         }
 
         repaint();
@@ -162,8 +168,10 @@ public class ControlPanel extends JPanel {
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 //            setAlignmentY(TOP_ALIGNMENT);
 
+            add(playerNameLabel);
+            add(Box.createVerticalStrut(10));
             add(stepsLeftLabel);
-            add(Box.createRigidArea(new Dimension(0, 10)));
+            add(Box.createVerticalStrut(10));
             add(cardsLabel);
             add(Box.createVerticalGlue());
         }
