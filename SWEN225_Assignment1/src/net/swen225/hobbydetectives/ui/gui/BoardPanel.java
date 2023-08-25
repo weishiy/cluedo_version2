@@ -80,7 +80,8 @@ public final class BoardPanel extends JPanel {
 
         //Draw empty space
         squareGraphic.setColor(Color.MAGENTA);
-        squareGraphic.fillRect(0, 0, length, length);
+        //We use `cellLength * width/height` rather than local var `length`, so our empty space only includes valid cells.
+        squareGraphic.fillRect(0, 0, cellLength * bean.board().getWidth(), cellLength * bean.board().getHeight());
 
         drawEstates(squareGraphic, cellLength);
 
@@ -88,21 +89,7 @@ public final class BoardPanel extends JPanel {
 
         drawPlayers(squareGraphic, cellLength);
 
-//        // Draw grid
-//        for (var i = 0; i < boardSize; i++) {
-//            for (var j = 0; j < boardSize; j++) {
-//                var x = tileToPixelX(j);
-//                var y = tileToPixelY(i);
-//                g.setColor(Color.LIGHT_GRAY);
-//                g.drawLine(x, y, x, y + CELL_SIZE);
-//                g.drawLine(x, y, x + CELL_SIZE, y);
-//            }
-//        }
-//
-//        // Draw canvas border
-//        ((Graphics2D) g).setStroke(new BasicStroke(outerBorderSize));
-//        g.setColor(Color.BLACK);
-//        g.drawRect(X_OFFSET, Y_OFFSET, gridSize, gridSize);
+        drawGrid(squareGraphic, cellLength);
     }
 
     private void drawEstate(Graphics g, int cellLength, Estate estate) {
@@ -182,6 +169,22 @@ public final class BoardPanel extends JPanel {
             clippedGraphic.drawString(letters, 0, cellLength);
         }
 
+    }
+
+    private void drawGrid(Graphics g, int cellLength) {
+        g.setColor(Color.LIGHT_GRAY);
+
+        //Vertical lines
+        for (var i = 1; i < bean.board().getWidth(); i++) {
+            int x = i * cellLength;
+            g.drawLine(x, 0, x, bean.board().getHeight() * cellLength);
+        }
+
+        //Horizontal lines
+        for (var j = 1; j < bean.board().getHeight(); j++) {
+            int y = j * cellLength;
+            g.drawLine(0, y, bean.board().getWidth() * cellLength, y);
+        }
     }
 
 }
