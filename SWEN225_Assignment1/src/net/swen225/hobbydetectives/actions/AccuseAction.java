@@ -8,9 +8,14 @@ import net.swen225.hobbydetectives.card.EstateCard;
 import net.swen225.hobbydetectives.card.WeaponCard;
 import net.swen225.hobbydetectives.player.Player;
 import net.swen225.hobbydetectives.player.PlayerTurn;
+import net.swen225.hobbydetectives.ui.bean.BoardBeanBuilder;
+import net.swen225.hobbydetectives.ui.bean.ChooseCardBean;
+import net.swen225.hobbydetectives.ui.bean.PauseMessageBean;
 
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class AccuseAction implements Action {
@@ -25,56 +30,46 @@ public class AccuseAction implements Action {
     }
 
     @Override
-    public boolean accept(String userInput) {
-        return "A".equalsIgnoreCase(userInput);
-    }
-
-    @Override
-    public String description() {
-        return "A - Accuse";
-    }
-
-    @Override
     public void perform() {
-        var s = new Scanner(System.in);
-        CharacterCard characterCard = null;
-        EstateCard estateCard = null;
-        WeaponCard weaponCard = null;
-        while (characterCard == null) {
-            System.out.println("Choose a character: ");
-            System.out.println("    " + Arrays.stream(CharacterCard.values()).map(CharacterCard::toString).collect(Collectors.joining(", ")));
-            var character = s.nextLine();
-            characterCard = CharacterCard.fromString(character);
-            if (characterCard == null) {
-                System.out.println("Invalid input: " + character);
+        try {
+            game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(game.board()).withPlayers(game.board().players()).withCurrentPlayer(player).withStepsLeft(turn.stepsLeft()).build());
+
+            var chooseCharacterDialogue = new ChooseCardBean();
+            chooseCharacterDialogue.promptText("Accuse the killer:");
+            chooseCharacterDialogue.cards(Set.copyOf(Arrays.asList(CharacterCard.values())));
+            var chooseCharacterFuture = game.ui().render(chooseCharacterDialogue);
+            var characterCard = (CharacterCard) chooseCharacterFuture.get();
+
+            var chooseEstateDialogue = new ChooseCardBean();
+            chooseEstateDialogue.promptText("Accuse the killer:");
+            chooseEstateDialogue.cards(Set.copyOf(Arrays.asList(EstateCard.values())));
+            var chooseEstateFuture = game.ui().render(chooseEstateDialogue);
+            var estateCard = (EstateCard) chooseEstateFuture.get();
+
+
+            var chooseWeaponDialogue = new ChooseCardBean();
+            chooseWeaponDialogue.promptText("Accuse the murder weapon:");
+            chooseWeaponDialogue.cards(Set.copyOf(Arrays.asList(WeaponCard.values())));
+            var chooseWeaponFuture = game.ui().render(chooseWeaponDialogue);
+            var weaponCard = (WeaponCard) chooseWeaponFuture.get();
+
+            var accuse = new CardTriple(characterCard, estateCard, weaponCard);
+            if (game.solution().equals(accuse)) {
+                player.isWinner(true);
+                turn.endTurn();
+            } else {
+                var accuseFailedMessage = new PauseMessageBean();
+                accuseFailedMessage.messageText("Accuse failed. You're removed from the Game. ");
+                var accuseFailedFuture = game.ui().render(accuseFailedMessage);
+                accuseFailedFuture.get();
+
+                player.active(false);
+                turn.endTurn();
             }
-        }
-        while (estateCard == null) {
-            System.out.println("Choose a estate: ");
-            System.out.println("    " + Arrays.stream(EstateCard.values()).map(EstateCard::toString).collect(Collectors.joining(", ")));
-            var estate = s.nextLine();
-            estateCard = EstateCard.fromString(estate);
-            if (estateCard == null) {
-                System.out.println("Invalid input: " + estate);
-            }
-        }
-        while(weaponCard == null) {
-            System.out.println("Choose a weapon: ");
-            System.out.println("    " + Arrays.stream(WeaponCard.values()).map(WeaponCard::toString).collect(Collectors.joining(", ")));
-            var weapon = s.nextLine();
-            weaponCard = WeaponCard.fromString(weapon);
-            if (weaponCard == null) {
-                System.out.println("Invalid input: " + weapon);
-            }
-        }
-        var accuse = new CardTriple(characterCard, estateCard, weaponCard);
-        if (game.solution().equals(accuse)) {
-            player.isWinner(true);
-            turn.endTurn();
-            game.endGame();
-        } else {
-            turn.endTurn();
-            player.active(false);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 }

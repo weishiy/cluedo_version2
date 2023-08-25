@@ -1,6 +1,8 @@
 package net.swen225.hobbydetectives.tests;
 
 import net.swen225.hobbydetectives.board.Board;
+import net.swen225.hobbydetectives.card.CharacterCard;
+import net.swen225.hobbydetectives.player.Player;
 import net.swen225.hobbydetectives.ui.bean.BoardBean;
 import net.swen225.hobbydetectives.ui.gui.BoardPanel;
 
@@ -11,8 +13,12 @@ public class DisplayBoardPanel {
     private static final BoardBean bean = new BoardBean();
 
     static {
-        bean.board(new Board());
-        bean.players(Set.of());
+        Set<Player> players = Set.of(new Player(CharacterCard.LUCILLA, 11, 1), new Player(CharacterCard.BERT, 1, 9),
+                new Player(CharacterCard.MALINA, 9, 22), new Player(CharacterCard.PERCY, 22, 14));
+
+        bean.players(players);
+        bean.board(new Board(players));
+
         bean.stepsLeft(-1);
         bean.visible(true);
 

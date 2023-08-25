@@ -15,16 +15,6 @@ public class MoveUpAction implements Action {
     }
 
     @Override
-    public boolean accept(String userInput) {
-        return "U".equalsIgnoreCase(userInput);
-    }
-
-    @Override
-    public String description() {
-        return "U - Move up one tile";
-    }
-
-    @Override
     public void perform() {
         player.y(player.y() - 1);
         turn.decreaseStepsLeft();

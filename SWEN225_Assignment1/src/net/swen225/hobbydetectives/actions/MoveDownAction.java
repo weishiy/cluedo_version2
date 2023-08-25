@@ -14,17 +14,6 @@ public class MoveDownAction implements Action {
         this.player = player;
     }
 
-
-    @Override
-    public boolean accept(String userInput) {
-        return "D".equalsIgnoreCase(userInput);
-    }
-
-    @Override
-    public String description() {
-        return "D - Move down one tile";
-    }
-
     @Override
     public void perform() {
         player.y(player.y() + 1);

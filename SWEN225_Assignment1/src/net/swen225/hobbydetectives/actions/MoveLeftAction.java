@@ -14,17 +14,6 @@ public class MoveLeftAction implements Action {
         this.player = player;
     }
 
-
-    @Override
-    public boolean accept(String userInput) {
-        return "L".equalsIgnoreCase(userInput);
-    }
-
-    @Override
-    public String description() {
-        return "L - Move left one tile";
-    }
-
     @Override
     public void perform() {
         player.x(player.x() - 1);
