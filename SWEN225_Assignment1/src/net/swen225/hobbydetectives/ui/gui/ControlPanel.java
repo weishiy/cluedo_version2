@@ -99,16 +99,28 @@ public class ControlPanel extends JPanel {
 
         guessButton.setEnabled(bean.canGuess());
 
-        stepsLeftLabel.setText("Steps left: %d".formatted(bean.stepsLeft()));
+        //Current player is null when changing players.
         if (bean.currentPlayer() != null) {
             cardsLabel.setVisible(true);
             cardsLabel.setText("Your cards: %s".formatted(bean.currentPlayer().hand().toString()));
 
             playerNameLabel.setVisible(true);
             playerNameLabel.setText(bean.currentPlayer().characterCard().name());
+
+            stepsLeftLabel.setVisible(true);
+            stepsLeftLabel.setText("Steps left: %d".formatted(bean.stepsLeft()));
+
+            //Buttons shouldn't be enabled when player isn't set.
+            endTurnButton.setEnabled(true);
+            accuseButton.setEnabled(true);
         } else {
             cardsLabel.setVisible(false);
             playerNameLabel.setVisible(false);
+            stepsLeftLabel.setVisible(false);
+
+            //Buttons shouldn't be enabled when player isn't set.
+            endTurnButton.setEnabled(false);
+            accuseButton.setEnabled(false);
         }
 
         repaint();
