@@ -8,6 +8,8 @@ import net.swen225.hobbydetectives.ui.bean.BoardBean;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,6 +49,65 @@ public final class BoardPanel extends JPanel {
 
         //Return the smallest of the two, so all cells fit even if one dimension doesn't.
         return Math.min(widthRatio, heightRatio);
+    }
+
+    /**
+     * Draws a string, bounded to a set area.
+     *
+     * @param g        The graphics instance to draw with.
+     * @param drawArea The bounds where we want to write in.
+     * @param string   The string we want to write.
+     */
+    private static void drawString(Graphics2D g, Rectangle2D drawArea, String string) {
+        //Solution from: https://stackoverflow.com/a/4658361. Scale large font down.
+        //Large font to base initial image.
+        final Font font = new Font(null, Font.PLAIN, 24);
+
+        FontMetrics metrics = g.getFontMetrics(font);
+        //In baseline-relative coordinates, so x=0, y is negative.
+        Rectangle2D fontSpace = metrics.getStringBounds(string, g);
+
+        AffineTransform transform = proportionalTransform(drawArea, fontSpace);
+
+        Graphics2D g1 = (Graphics2D) g.create();
+
+        g1.transform(transform);
+        g1.drawString(string, 0, 0);
+    }
+
+    private static void drawString(Graphics2D g, String string) {
+        Rectangle2D bounds = g.getClipBounds();
+        drawString(g, bounds, string);
+    }
+
+    /**
+     * Creates a transform that maps from the oldUserSpace to newUserSpace, but scales proportionally.
+     *
+     * @param newUserSpace The new space to map to.
+     * @param oldUserSpace The old space to map from.
+     * @return A transform that transforms points from the old space to the new space.
+     */
+    private static AffineTransform proportionalTransform(Rectangle2D newUserSpace, Rectangle2D oldUserSpace) {
+        //"Origin space" refers to space where (0,0) marks center of system.
+
+        //Methods on transform are concatenated from the right. If you're thinking of individual steps to get from a
+        //point in oldUserSpace to a point in newUserSpace, follow transformations backwards.
+
+        AffineTransform transform = new AffineTransform();
+
+        //Finally translate from origin space to new user space.
+        transform.translate(newUserSpace.getX(), newUserSpace.getY());
+
+        //Scale transform to size of draw area, keeping x and y proportional.
+        double scale = Math.min(newUserSpace.getWidth() / oldUserSpace.getWidth(),
+                newUserSpace.getHeight() / oldUserSpace.getHeight());
+
+        transform.scale(scale, scale);
+
+        //Initial translate from old user space to origin space.
+        transform.translate(-oldUserSpace.getX(), -oldUserSpace.getY());
+
+        return transform;
     }
 
     public void render(BoardBean bean) {
