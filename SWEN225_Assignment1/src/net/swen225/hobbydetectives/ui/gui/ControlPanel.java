@@ -8,11 +8,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 /**
  * Establishes the controls used during movement, including guessing and accusation.
  */
 public class ControlPanel extends JPanel {
+
+    protected static final boolean DO_DEBUG = false;
 
     //Buttons displayed in this panel.
     //Movement buttons
@@ -20,20 +24,17 @@ public class ControlPanel extends JPanel {
     private final JButton downButton = new MovementButton("Down");
     private final JButton leftButton = new MovementButton("Left");
     private final JButton rightButton = new MovementButton("Right");
-
     //Other buttons
     private final JButton guessButton = new OtherActionButton("Guess");
     private final JButton accuseButton = new OtherActionButton("Accuse");
     private final JButton endTurnButton = new OtherActionButton("End Turn");
-
     //Text labels
-    private final JLabel stepsLeftLabel = new JLabel("Error: not set");
-    private final JLabel playerNameLabel = new JLabel("Error: not set");
+    private final JLabel stepsLeftLabel = new TextLabel();
+    private final JLabel playerNameLabel = new TextLabel();
     /**
      * The current player's hand
      */
-    private final JLabel cardsLabel = new JLabel("Error: not set");
-
+    private final JLabel cardsLabel = new TextLabel();
     /**
      * Controller to pass-back input to.
      */
@@ -44,21 +45,40 @@ public class ControlPanel extends JPanel {
      */
     public ControlPanel() {
         super();
-        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         initialiseListeners();
 
         add(new MovementContainer()); //Contains direction buttons
-
         add(new TextContainer()); //Contains text labels
-
-        //Add filler between elements
-        Dimension minimum = new Dimension(5, getMinimumSize().height);
-        Dimension preferred = new Dimension(5, getPreferredSize().height);
-        Dimension maximum = new Dimension(Integer.MAX_VALUE, getMaximumSize().height);
-        add(new Box.Filler(minimum, preferred, maximum));
-
         add(new OtherActionsContainer()); //Miscellaneous buttons
+    }
+
+    private static void debug(boolean doDebug, Component component) {
+        if (doDebug) {
+            System.out.println(component.getClass().getName());
+            System.out.println(component.getBounds());
+
+            System.out.println();
+
+            if (component instanceof Container container) {
+                for (Component component1 : container.getComponents()) {
+                    debug(true, component1);
+                }
+            }
+
+        }
+    }
+
+    private static void debug(Component component) {
+        debug(DO_DEBUG, component);
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        //Prints bounds of all components in this panel.
+        debug(this);
+        super.paint(g);
     }
 
     private void initialiseListeners() {
@@ -87,7 +107,6 @@ public class ControlPanel extends JPanel {
         endTurnButton.addActionListener(new Listener(MovementActions.END_TURN));
     }
 
-
     /**
      * Associates the given controller with input this object receives.
      *
@@ -103,7 +122,6 @@ public class ControlPanel extends JPanel {
      * @param bean The bean telling which buttons/functionality are enabled.
      */
     public void render(BoardBean bean) {
-        //TODO: Make it so buttons render (appear) conditionally.
         upButton.setEnabled(bean.canMoveUp());
         downButton.setEnabled(bean.canMoveDown());
         leftButton.setEnabled(bean.canMoveLeft());
@@ -126,16 +144,20 @@ public class ControlPanel extends JPanel {
         repaint();
     }
 
+    private static class TextLabel extends JLabel {
+        public TextLabel() {
+            super();
+            setAlignmentX(CENTER_ALIGNMENT);
+        }
+    }
+
     private static class MovementButton extends JButton {
-        public static final int MINIMUM_LENGTH = 50;
+        public static final int MINIMUM_LENGTH = 75;
 
         public MovementButton(String text) {
             super(text);
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-            setMinimumSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
 
-            //Have each button stretch to fill space.
-            setPreferredSize(null);
+            setMinimumSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
         }
     }
 
@@ -143,12 +165,17 @@ public class ControlPanel extends JPanel {
         public OtherActionButton(String text) {
             super(text);
 
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
             setMinimumSize(new Dimension(100, 50));
 
-            //Have each button stretch to fill space.
-            setPreferredSize(null);
             setAlignmentX(CENTER_ALIGNMENT);
+        }
+
+        @Override
+        public Dimension getMaximumSize() {
+            //The button tries to fill all horizontal space.
+            Dimension size = super.getMaximumSize();
+            size.width = Integer.MAX_VALUE;
+            return size;
         }
     }
 
@@ -159,28 +186,67 @@ public class ControlPanel extends JPanel {
         public static final int MINIMUM_LENGTH = MovementButton.MINIMUM_LENGTH * 3;
 
         public MovementContainer() {
-            super(new GridBagLayout());
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            super(null);
+
             setMinimumSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
 
-            add(upButton, constraints(1, 0));
-            add(downButton, constraints(1, 2));
-            add(leftButton, constraints(0, 1));
-            add(rightButton, constraints(2, 1));
+            InnerPanel innerPanel = new InnerPanel();
+            add(innerPanel);
+
+            //Whenever this container is resized, make inner panel square.
+            addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    innerPanel.makeSquare();
+                }
+            });
+
+            //Initialises size so the above listener fires. Else, inner panel isn't initially sized.
+            setSize(new Dimension(MINIMUM_LENGTH, MINIMUM_LENGTH));
         }
 
-        private static GridBagConstraints constraints(int gridx, int gridy) {
-            final float weight = 1.0f / 3.0f;
 
-            GridBagConstraints constraints = new GridBagConstraints();
-            constraints.weightx = weight;
-            constraints.weighty = weight;
-            constraints.fill = GridBagConstraints.BOTH;
+        /**
+         * Square-shaped panel that stretches to fill its container.
+         */
+        private class InnerPanel extends JPanel {
+            public InnerPanel() {
+                super(new GridBagLayout());
+                //Arrange buttons in grid according to arrow-keys location.
+                add(upButton, constraints(1, 0));
+                add(downButton, constraints(1, 2));
+                add(leftButton, constraints(0, 1));
+                add(rightButton, constraints(2, 1));
+            }
 
-            constraints.gridx = gridx;
-            constraints.gridy = gridy;
+            private static GridBagConstraints constraints(int gridx, int gridy) {
+                final float weight = 1.0f / 3.0f;
 
-            return constraints;
+                GridBagConstraints constraints = new GridBagConstraints();
+                constraints.weightx = weight;
+                constraints.weighty = weight;
+                constraints.fill = GridBagConstraints.BOTH;
+
+                constraints.gridx = gridx;
+                constraints.gridy = gridy;
+
+                return constraints;
+            }
+
+            public void makeSquare() {
+                Container container = getParent();
+
+                //Largest length that contains both width and height
+                int length = Math.min(container.getWidth(), container.getHeight());
+
+                int centerX = container.getWidth() / 2;
+                int centerY = container.getHeight() / 2;
+
+                int left = centerX - length / 2;
+                int top = centerY - length / 2;
+
+                setBounds(left, top, length, length);
+            }
         }
     }
 
@@ -188,23 +254,21 @@ public class ControlPanel extends JPanel {
         public TextContainer() {
             super();
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-            setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-//            setAlignmentY(TOP_ALIGNMENT);
 
             add(playerNameLabel);
             add(Box.createVerticalStrut(10));
             add(stepsLeftLabel);
             add(Box.createVerticalStrut(10));
             add(cardsLabel);
-            add(Box.createVerticalGlue());
         }
     }
 
     private class OtherActionsContainer extends JPanel {
         public OtherActionsContainer() {
-            //Can't refer to `this` in super, thus use setLayout.
             super();
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
+            setMinimumSize(new Dimension(15, 60));
 
             add(guessButton);
             add(accuseButton);

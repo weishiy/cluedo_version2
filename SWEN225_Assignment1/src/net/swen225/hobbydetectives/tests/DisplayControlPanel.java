@@ -26,6 +26,8 @@ public class DisplayControlPanel {
         bean.canMoveLeft(true);
         bean.canMoveUp(true);
         bean.canMoveRight(true);
+
+        bean.currentPlayer(players.iterator().next());
     }
 
     public static void main(String[] args) {

@@ -23,20 +23,20 @@ public class GameFrame extends JFrame implements BoardUI {
 
         setTitle("Hobby Detectives Game");
         setMinimumSize(new Dimension(
-                //Minimum width can contain the largest of the components' minimum width.
-                Math.max(boardPanel.getMinimumSize().width, controlPanel.getMinimumSize().width),
-                //Minimum height can contain sum of components' minimum heights.
-                boardPanel.getMinimumSize().height + controlPanel.getMinimumSize().height));
+                //Minimum width can contain the sum components' minimum width.
+                boardPanel.getMinimumSize().width + controlPanel.getMinimumSize().width + 10,
+                //Minimum height can contain max of components' minimum heights.
+                Math.max(boardPanel.getMinimumSize().height, controlPanel.getMinimumSize().height)));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //This JFrame is just wrapper over content pane, so we pass content pane to BoxLayout.
-        setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.LINE_AXIS));
 
         boardPanel.setPreferredSize(new Dimension(5000, 5000));
-        boardPanel.setAlignmentX(CENTER_ALIGNMENT);
+//        boardPanel.setAlignmentY(TOP_ALIGNMENT);
         add(boardPanel);
 
-        add(Box.createVerticalStrut(10));
+        add(Box.createHorizontalStrut(10));
 
         add(controlPanel);
 
