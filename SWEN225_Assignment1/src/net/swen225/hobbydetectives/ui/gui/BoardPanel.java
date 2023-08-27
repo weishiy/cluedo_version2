@@ -223,11 +223,16 @@ public final class BoardPanel extends JPanel {
             int left = entry.getKey().x * cellLength;
             int top = entry.getKey().y * cellLength;
             String letters = entry.getValue();
-            //TODO: Modify font so that characters are correct size (Jeremy)
             //Ensures characters are drawn inside cell
             Graphics clippedGraphic = g.create(left, top, cellLength, cellLength);
-            clippedGraphic.setColor(Color.BLACK);
-            clippedGraphic.drawString(letters, 0, cellLength);
+            if (!(clippedGraphic instanceof Graphics2D graphics2D)) {
+                throw new Error("Graphics object should be Graphics2D");
+            }
+            graphics2D.setColor(Color.BLACK);
+            drawString(graphics2D, letters);
+
+            //FIXME:Scaling issues with character sizes
+            //FIXME:Centering issues with strings
         }
 
     }
