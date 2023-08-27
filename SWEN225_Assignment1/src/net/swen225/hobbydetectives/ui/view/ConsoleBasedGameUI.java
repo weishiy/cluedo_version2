@@ -121,87 +121,70 @@ public class ConsoleBasedGameUI implements GameUI {
             System.out.println("Your cards: ");
             System.out.println("    " + currentPlayer.hand().stream().map(Card::toString).collect(Collectors.joining(", ")));
 
-            if (boardBean.visible()) {
-                System.out.println("You've " + stepsLeft + " steps left. ");
+            System.out.println("You've " + stepsLeft + " steps left. ");
 
-                var allowedActions = new HashMap<String, MovementActions>();
-                if (boardBean.canMoveUp()) {
-                    allowedActions.put("U", MovementActions.UP);
-                }
-                if (boardBean.canMoveDown()) {
-                    allowedActions.put("D", MovementActions.DOWN);
-                }
-                if (boardBean.canMoveLeft()) {
-                    allowedActions.put("L", MovementActions.LEFT);
-                }
-                if (boardBean.canMoveRight()) {
-                    allowedActions.put("R", MovementActions.RIGHT);
-                }
-                if (boardBean.canGuess()) {
-                    allowedActions.put("G", MovementActions.GUESS);
-                }
-                allowedActions.put("A", MovementActions.ACCUSE);
-                allowedActions.put("E", MovementActions.END_TURN);
+            var allowedActions = new HashMap<String, MovementActions>();
+            if (boardBean.canMoveUp()) {
+                allowedActions.put("U", MovementActions.UP);
+            }
+            if (boardBean.canMoveDown()) {
+                allowedActions.put("D", MovementActions.DOWN);
+            }
+            if (boardBean.canMoveLeft()) {
+                allowedActions.put("L", MovementActions.LEFT);
+            }
+            if (boardBean.canMoveRight()) {
+                allowedActions.put("R", MovementActions.RIGHT);
+            }
+            if (boardBean.canGuess()) {
+                allowedActions.put("G", MovementActions.GUESS);
+            }
+            allowedActions.put("A", MovementActions.ACCUSE);
+            allowedActions.put("E", MovementActions.END_TURN);
 
-                new Thread(() -> {
-                    var validInput = false;
-                    while (!validInput) {
-                        System.out.println("Choose any of below to continue: ");
-                        allowedActions.forEach((k, v) -> System.out.println(k + " - " + v.toString()));
+            new Thread(() -> {
+                var validInput = false;
+                while (!validInput) {
+                    System.out.println("Choose any of below to continue: ");
+                    allowedActions.forEach((k, v) -> System.out.println(k + " - " + v.toString()));
 
-                        var s = new Scanner(System.in);
-                        var userInput = s.nextLine();
+                    var s = new Scanner(System.in);
+                    var userInput = s.nextLine();
 
-                        if (allowedActions.containsKey(userInput) && controller != null) {
-                            controller.process(allowedActions.get(userInput));
-                            validInput = true;
-                        } else {
-                            System.out.println("Invalid input: " + userInput);
-                        }
+                    if (allowedActions.containsKey(userInput) && controller != null) {
+                        controller.process(allowedActions.get(userInput));
+                        validInput = true;
+                    } else {
+                        System.out.println("Invalid input: " + userInput);
                     }
-                }).start();
+                }
+            }).start();
+        }
+    }
+
+    @Override
+    public Card render(ChooseCardBean chooseCardBean) {
+        System.out.println(chooseCardBean.promptText());
+
+        while (true) {
+            chooseCardBean.cards().forEach(System.out::println);
+
+            var scan = new Scanner(System.in);
+            var userInput = scan.nextLine();
+            var card = chooseCardBean.cards().stream().filter(c -> c.toString().equals(userInput)).findFirst().orElse(null);
+
+            if (card != null) {
+                return card;
             }
         }
     }
 
     @Override
-    public <T extends Card> Future<T> render(ChooseCardBean chooseCardBean) {
-        System.out.println(chooseCardBean.promptText());
-
-        var future = new CompletableFuture<T>();
-        new Thread(() -> {
-            var validInput = false;
-            while (!validInput) {
-                chooseCardBean.cards().forEach(System.out::println);
-
-                var scan = new Scanner(System.in);
-                var userInput = scan.nextLine();
-                var card = chooseCardBean.cards().stream().filter(c -> c.toString().equals(userInput)).findFirst().orElse(null);
-
-                if (card != null) {
-                    validInput = true;
-                    future.complete((T) card);
-                }
-            }
-        }).start();
-
-        return future;
-    }
-
-    @Override
-    public Future<Void> render(PauseMessageBean pauseMessageBean) {
+    public void render(PauseMessageBean pauseMessageBean) {
         System.out.println(pauseMessageBean.messageText());
         System.out.println("Press Enter key to roll...");
 
-        var future = new CompletableFuture<Void>();
-
-        new Thread(() -> {
-            var scan = new Scanner(System.in);
-            scan.nextLine();
-            future.complete(null);
-        }).start();
-
-        return future;
+        (new Scanner(System.in)).nextLine();
     }
 
     private static String firstCharacterOfCharacterName(Player p) {

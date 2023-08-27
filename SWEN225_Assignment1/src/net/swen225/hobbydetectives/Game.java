@@ -10,6 +10,7 @@ import net.swen225.hobbydetectives.player.Player;
 import net.swen225.hobbydetectives.player.PlayerTurn;
 import net.swen225.hobbydetectives.ui.bean.BoardBeanBuilder;
 import net.swen225.hobbydetectives.ui.bean.PauseMessageBean;
+import net.swen225.hobbydetectives.ui.gui.GameFrame;
 import net.swen225.hobbydetectives.ui.view.ConsoleBasedGameUI;
 import net.swen225.hobbydetectives.ui.view.GameUI;
 
@@ -33,7 +34,7 @@ public class Game {
         solution = generateSolution();
         dispatchRemainingCards();
 
-        ui = new ConsoleBasedGameUI();
+        ui = new GameFrame();
     }
 
     private void initPlayerQueue() {
@@ -112,9 +113,7 @@ public class Game {
         } else {
             resultMessage.messageText("No winner. Solution is: " + solution);
         }
-        var future = ui.render(resultMessage);
-        // Wait for user to confirm the result
-        future.get();
+        ui.render(resultMessage);
     }
 
     private void renderGameWithSensitiveDataHidden() {
@@ -125,8 +124,7 @@ public class Game {
         renderGameWithSensitiveDataHidden();
         var changingPlayerMessage = new PauseMessageBean();
         changingPlayerMessage.messageText("Next player is " + nextPlayer.characterCard().toString());
-        var future = ui.render(changingPlayerMessage);
-        future.get();
+        ui.render(changingPlayerMessage);
     }
 
     private boolean hasWinner() {

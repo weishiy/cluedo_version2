@@ -1,16 +1,25 @@
 package net.swen225.hobbydetectives.ui.gui;
 
+import net.swen225.hobbydetectives.card.model.Card;
 import net.swen225.hobbydetectives.ui.bean.BoardBean;
+import net.swen225.hobbydetectives.ui.bean.ChooseCardBean;
+import net.swen225.hobbydetectives.ui.bean.PauseMessageBean;
 import net.swen225.hobbydetectives.ui.controller.Controller;
 import net.swen225.hobbydetectives.ui.view.BoardUI;
+import net.swen225.hobbydetectives.ui.view.GameUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
 /**
  * GUI class for displaying the game board of Hobby Detectives.
  */
-public class GameFrame extends JFrame implements BoardUI {
+public class GameFrame extends JFrame implements GameUI {
 
     private final ControlPanel controlPanel = new ControlPanel();
     private final BoardPanel boardPanel = new BoardPanel();
@@ -55,5 +64,30 @@ public class GameFrame extends JFrame implements BoardUI {
     public void render(BoardBean boardBean) {
         controlPanel.render(boardBean);
         boardPanel.render(boardBean);
+    }
+
+    @Override
+    public Card render(ChooseCardBean chooseCardBean) {
+        var cards = chooseCardBean.cards().stream().collect(Collectors.toMap(Card::toString, e -> e));
+
+        var response = (String) JOptionPane.showInputDialog(
+                this,
+                chooseCardBean.promptText(),
+                "Message",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                cards.keySet().toArray(new String[0]),
+                null);
+
+        return cards.get(response);
+    }
+
+    @Override
+    public void render(PauseMessageBean pauseMessageBean) {
+        JOptionPane.showMessageDialog(
+                this,
+                pauseMessageBean.messageText(),
+                "Message",
+                INFORMATION_MESSAGE);
     }
 }

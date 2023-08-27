@@ -21,7 +21,6 @@ public class DisplayGameFrame {
         bean.board(new Board(players));
 
         bean.stepsLeft(5);
-        bean.visible(true);
 
         bean.canGuess(true);
         bean.canMoveDown(false);

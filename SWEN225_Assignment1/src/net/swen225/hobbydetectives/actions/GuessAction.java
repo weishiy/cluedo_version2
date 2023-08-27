@@ -81,14 +81,12 @@ public class GuessAction implements Action {
     var chooseWeaponDialogue = new ChooseCardBean();
     chooseWeaponDialogue.promptText("Guess the murder weapon:");
     chooseWeaponDialogue.cards(Set.copyOf(Arrays.asList(WeaponCard.values())));
-    var chooseWeaponFuture = ui.render(chooseWeaponDialogue);
-    WeaponCard weapon = (WeaponCard) chooseWeaponFuture.get();
+    WeaponCard weapon = (WeaponCard) ui.render(chooseWeaponDialogue);
 
     var chooseCharacterDialogue = new ChooseCardBean();
     chooseCharacterDialogue.promptText("Guess the killer:");
     chooseCharacterDialogue.cards(Set.copyOf(Arrays.asList(CharacterCard.values())));
-    var chooseCharacterFuture = ui.render(chooseCharacterDialogue);
-    CharacterCard characterCard = (CharacterCard) chooseCharacterFuture.get();
+    CharacterCard characterCard = (CharacterCard) ui.render(chooseCharacterDialogue);
 
     EstateCard estate = board.getEstateAt(guesser.x(), guesser.y()).estateCard();
     assert estate != null : "The player making the guess is not in an estate.";
@@ -141,12 +139,11 @@ public class GuessAction implements Action {
   private Card askRefute(Player refuter, Set<Card> refutes) throws ExecutionException, InterruptedException {
     changingPlayer("Current refuter is: " + refuter.characterCard().toString());
 
-    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(refuter).build());
+    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
     var chooseCardDialogue = new ChooseCardBean();
     chooseCardDialogue.promptText("Select card to refute with:");
     chooseCardDialogue.cards(refutes);
-    var chooseCardFuture = ui.render(chooseCardDialogue);
-    return chooseCardFuture.get();
+    return ui.render(chooseCardDialogue);
   }
 
   /**
@@ -155,7 +152,7 @@ public class GuessAction implements Action {
   private void tellRefute(Player refuter, Card refuteWith) throws ExecutionException, InterruptedException {
     changingPlayer("Current refuter is: " + refuter.characterCard().toString());
 
-    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(refuter).build());
+    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
     promptAndWait("You must refute with: " + refuteWith.toString());
   }
 
@@ -180,7 +177,7 @@ public class GuessAction implements Action {
   private void giveRefute(Card card) throws ExecutionException, InterruptedException {
     changingPlayer("Current player is: " + guesser.characterCard().toString());
 
-    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(guesser).withStepsLeft(playerTurn.stepsLeft()).build());
+    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
     promptAndWait("Your guess was refuted: " + card.toString());
   }
 
@@ -192,7 +189,7 @@ public class GuessAction implements Action {
    * @param cards their guess.
    */
   private void giveUnrefuted(CardTriple cards) throws ExecutionException, InterruptedException {
-    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).withCurrentPlayer(guesser).withStepsLeft(playerTurn.stepsLeft()).build());
+    game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(board).withPlayers(board.players()).build());
     promptAndWait("Your guess wasn't refuted: " + cards);
   }
 
@@ -204,8 +201,7 @@ public class GuessAction implements Action {
   private void promptAndWait(String message) throws InterruptedException, ExecutionException {
     var changingPlayerMessage = new PauseMessageBean();
     changingPlayerMessage.messageText(message);
-    var changingPlayerFuture = ui.render(changingPlayerMessage);
-    changingPlayerFuture.get();
+    ui.render(changingPlayerMessage);
   }
 
 

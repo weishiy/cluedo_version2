@@ -21,7 +21,6 @@ public class DisplayControlPanel {
         bean.players(players);
         bean.board(new Board(players));
         bean.stepsLeft(-1);
-        bean.visible(true);
 
         bean.canGuess(true);
         bean.canMoveDown(true);

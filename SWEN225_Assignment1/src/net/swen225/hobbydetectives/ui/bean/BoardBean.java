@@ -17,8 +17,6 @@ public class BoardBean  {
     /* The player whose turn it is */
     private Player currentPlayer;
 
-    /* Whether we are in between turns. When changing players, the board is hidden, and input is limited. */
-    private boolean visible;
     //The allowed movements of the player
     private boolean canMoveUp;
     private boolean canMoveDown;
@@ -55,14 +53,6 @@ public class BoardBean  {
 
     public Player currentPlayer() {
         return currentPlayer;
-    }
-
-    public void visible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public boolean visible() {
-        return visible;
     }
 
     public void canMoveUp(boolean canMoveUp) {

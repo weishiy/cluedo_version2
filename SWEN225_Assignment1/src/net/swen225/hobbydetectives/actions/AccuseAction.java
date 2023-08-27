@@ -31,45 +31,35 @@ public class AccuseAction implements Action {
 
     @Override
     public void perform() {
-        try {
-            game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(game.board()).withPlayers(game.board().players()).withCurrentPlayer(player).withStepsLeft(turn.stepsLeft()).build());
+        game.ui().render(new BoardBeanBuilder().withFalsyDefaults().withBoard(game.board()).withPlayers(game.board().players()).withCurrentPlayer(player).withStepsLeft(turn.stepsLeft()).build());
 
-            var chooseCharacterDialogue = new ChooseCardBean();
-            chooseCharacterDialogue.promptText("Accuse the killer:");
-            chooseCharacterDialogue.cards(Set.copyOf(Arrays.asList(CharacterCard.values())));
-            var chooseCharacterFuture = game.ui().render(chooseCharacterDialogue);
-            var characterCard = (CharacterCard) chooseCharacterFuture.get();
+        var chooseCharacterDialogue = new ChooseCardBean();
+        chooseCharacterDialogue.promptText("Accuse the killer:");
+        chooseCharacterDialogue.cards(Set.copyOf(Arrays.asList(CharacterCard.values())));
+        var characterCard = (CharacterCard) game.ui().render(chooseCharacterDialogue);
 
-            var chooseEstateDialogue = new ChooseCardBean();
-            chooseEstateDialogue.promptText("Accuse the killer:");
-            chooseEstateDialogue.cards(Set.copyOf(Arrays.asList(EstateCard.values())));
-            var chooseEstateFuture = game.ui().render(chooseEstateDialogue);
-            var estateCard = (EstateCard) chooseEstateFuture.get();
+        var chooseEstateDialogue = new ChooseCardBean();
+        chooseEstateDialogue.promptText("Accuse the killer:");
+        chooseEstateDialogue.cards(Set.copyOf(Arrays.asList(EstateCard.values())));
+        var estateCard = (EstateCard) game.ui().render(chooseEstateDialogue);
 
 
-            var chooseWeaponDialogue = new ChooseCardBean();
-            chooseWeaponDialogue.promptText("Accuse the murder weapon:");
-            chooseWeaponDialogue.cards(Set.copyOf(Arrays.asList(WeaponCard.values())));
-            var chooseWeaponFuture = game.ui().render(chooseWeaponDialogue);
-            var weaponCard = (WeaponCard) chooseWeaponFuture.get();
+        var chooseWeaponDialogue = new ChooseCardBean();
+        chooseWeaponDialogue.promptText("Accuse the murder weapon:");
+        chooseWeaponDialogue.cards(Set.copyOf(Arrays.asList(WeaponCard.values())));
+        var weaponCard = (WeaponCard) game.ui().render(chooseWeaponDialogue);
 
-            var accuse = new CardTriple(characterCard, estateCard, weaponCard);
-            if (game.solution().equals(accuse)) {
-                player.isWinner(true);
-                turn.endTurn();
-            } else {
-                var accuseFailedMessage = new PauseMessageBean();
-                accuseFailedMessage.messageText("Accuse failed. You're removed from the Game. ");
-                var accuseFailedFuture = game.ui().render(accuseFailedMessage);
-                accuseFailedFuture.get();
+        var accuse = new CardTriple(characterCard, estateCard, weaponCard);
+        if (game.solution().equals(accuse)) {
+            player.isWinner(true);
+            turn.endTurn();
+        } else {
+            var accuseFailedMessage = new PauseMessageBean();
+            accuseFailedMessage.messageText("Accuse failed. You're removed from the Game. ");
+            game.ui().render(accuseFailedMessage);
 
-                player.active(false);
-                turn.endTurn();
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+            player.active(false);
+            turn.endTurn();
         }
     }
 }

@@ -13,5 +13,5 @@ public interface ChooseCardUI {
      * @param <T>            The type of the selected card.
      * @return The future that receives the selected card.
      */
-    <T extends Card> Future<T> render(ChooseCardBean chooseCardBean);
+    Card render(ChooseCardBean chooseCardBean);
 }

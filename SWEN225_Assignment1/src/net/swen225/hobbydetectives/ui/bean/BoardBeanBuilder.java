@@ -101,7 +101,6 @@ public class BoardBeanBuilder {
         boardBean.board(board);
         boardBean.players(players);
         boardBean.currentPlayer(currentPlayer);
-        boardBean.visible(visible);
         boardBean.canMoveUp(canMoveUp);
         boardBean.canMoveDown(canMoveDown);
         boardBean.canMoveLeft(canMoveLeft);
