@@ -15,9 +15,6 @@ import java.awt.event.ComponentEvent;
  * Establishes the controls used during movement, including guessing and accusation.
  */
 public class ControlPanel extends JPanel {
-
-    protected static final boolean DO_DEBUG = false;
-
     //Buttons displayed in this panel.
     //Movement buttons
     private final JButton upButton = new MovementButton("Up");
@@ -52,33 +49,6 @@ public class ControlPanel extends JPanel {
         add(new MovementContainer()); //Contains direction buttons
         add(new TextContainer()); //Contains text labels
         add(new OtherActionsContainer()); //Miscellaneous buttons
-    }
-
-    private static void debug(boolean doDebug, Component component) {
-        if (doDebug) {
-            System.out.println(component.getClass().getName());
-            System.out.println(component.getBounds());
-
-            System.out.println();
-
-            if (component instanceof Container container) {
-                for (Component component1 : container.getComponents()) {
-                    debug(true, component1);
-                }
-            }
-
-        }
-    }
-
-    private static void debug(Component component) {
-        debug(DO_DEBUG, component);
-    }
-
-    @Override
-    public void paint(Graphics g) {
-        //Prints bounds of all components in this panel.
-        debug(this);
-        super.paint(g);
     }
 
     private void initialiseListeners() {
