@@ -1,4 +1,4 @@
-# SWEN225-Assignment-1
+# Cluedo - version2
 
 ## Outline
 
