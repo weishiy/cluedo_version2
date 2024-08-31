@@ -1,0 +1,54 @@
+
+interface Card {}
+
+class CardTriple {
+  Card weapon;
+  Card character;
+  Card estate;
+}
+
+class RefutationController {
+  CardTriple unrefutedGuess = null;
+  
+  Stage {
+    MakeGuess {
+      do {askGuess()}
+      
+      makeGuess(CardTriple guess) -> RefuteAll;
+    }
+    RefuteAll {
+      BeginRefutation {}
+      entry / {tryRefute(guess)}
+      
+      tryRefute(CardTriple guess) [hasNextPlayer()] -> Refute;
+      tryRefute(CardTriple guess) [!hasNextPlayer()] / {setUnrefutedGuess(guess)}
+      -> Final;
+      refuted -> Final;
+      
+      Refute {
+        do {askRefute()}
+        
+      }
+    }
+  }
+  
+  private askGuess() {
+    
+  }
+  
+  private askRefute() {
+    
+  }
+}//$?[End_of_model]$?
+
+namespace -;
+
+class RefutationController
+{
+  position 50 30 109 45;
+}
+
+class CardTriple
+{
+  position 50 130 109 45;
+}
